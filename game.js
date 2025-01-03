@@ -54,8 +54,7 @@ class TicTacToe {
         // Initialize game components
         this.setupEventListeners();
         this.updateScoreDisplay();
-        this.startTimer();
-
+        
         // Initially disable reset button until first move
         this.resetStatsButton.disabled = true;
 
@@ -576,6 +575,14 @@ class TicTacToe {
         if (this.timerFrameId) {
             cancelAnimationFrame(this.timerFrameId);
             this.timerFrameId = null;
+        }
+    }
+
+    startTimer() {
+        if (!this.timerRunning) {
+            this.timerRunning = true;
+            this.startTime = Date.now();
+            this.updateTimer();
         }
     }
 
