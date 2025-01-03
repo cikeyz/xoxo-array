@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XO.array</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭕</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <button id="theme-toggle" class="theme-toggle">🌙</button>
+    <div class="container">
+        <div class="score-board">
+            <div class="player-score">
+                <h2 class="player-x">PLAYER X</h2>
+                <span id="x-score">0</span>
+            </div>
+            <div class="player-score">
+                <h2 class="player-o">PLAYER O</h2>
+                <span id="o-score">0</span>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+
+        <div class="button-group">
+            <button id="reset-button">New Game</button>
+            <button id="reset-all-button">Reset All</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 

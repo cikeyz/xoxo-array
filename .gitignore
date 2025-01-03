@@ -1,0 +1,19 @@
+# Local workspace only
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+.env
+.env.*
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.vercel/
+dist/
+build/
+*.log
