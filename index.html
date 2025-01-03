@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Tic-Tac-Toe</title>
+    <title>XOXO.array</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4V4zm6 0h4v4h-4V4z'/></svg>" type="image/svg+xml">
 </head>
 <body>
     <div class="container">
@@ -45,7 +46,8 @@
             <div class="game-controls">
                 <div class="control-buttons">
                     <button id="new-game" class="control-btn">New Game</button>
-                    <button id="undo-move" class="control-btn" disabled>Undo Move</button>
+                    <button id="undo-move" class="control-btn" disabled>Undo</button>
+                    <button id="reset-stats" class="control-btn" disabled>Reset</button>
                 </div>
             </div>
         </div>
@@ -54,7 +56,7 @@
             <div class="game-status">
                 <div class="game-info">
                     <div id="current-player">Current Player: X</div>
-                    <div id="timer">Time: 0:00</div>
+                    <div id="timer">Time: 00:00:00</div>
                     <div id="moves">Moves: 0</div>
                 </div>
             </div>
@@ -94,5 +96,17 @@
         </div>
     </div>
     <script src="game.js"></script>
+    <script>
+        function updateFavicon() {
+            const favicon = document.querySelector("link[rel='icon']");
+            favicon.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%236C5CE7' d='M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4V4zm6 0h4v4h-4V4z'/></svg>";
+        }
+
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('change', updateFavicon);
+
+        // Set initial favicon
+        updateFavicon();
+    </script>
 </body>
 </html> 

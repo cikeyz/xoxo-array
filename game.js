@@ -1,107 +1,155 @@
+// Constants
+const BOARD_SIZE = 9;
+const AI_MOVE_DELAY = 500;
+
 // Theme Toggle Functionality
 const themeToggle = document.getElementById('theme-toggle');
 
-// Check for saved theme preference
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    themeToggle.checked = true;
+// Check for system color scheme preference
+const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+// Function to update theme based on preference
+function updateTheme(isDark) {
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    themeToggle.checked = isDark;
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
-// Theme toggle event listener
-themeToggle.addEventListener('change', () => {
-    if (themeToggle.checked) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-    } else {
-        document.documentElement.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'light');
+// Check for saved theme preference or use system preference
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    updateTheme(savedTheme === 'dark');
+} else {
+    updateTheme(prefersDarkScheme.matches);
+}
+
+// Listen for system theme changes
+prefersDarkScheme.addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) {
+        updateTheme(e.matches);
     }
 });
 
-class ModernTicTacToe {
+// Theme toggle event listener
+themeToggle.addEventListener('change', () => {
+    updateTheme(themeToggle.checked);
+});
+
+class TicTacToe {
     constructor() {
-        this.board = [''] * 9;
+        // Initialize game state
+        this.board = Array(BOARD_SIZE).fill('');
         this.currentPlayer = 'X';
+        this.gameOver = false;
+        this.moveHistory = [];
         this.playerXScore = 0;
         this.playerOScore = 0;
-        this.moveHistory = [];
+        this.playerNames = { X: 'X', O: 'O' };
         this.timerRunning = false;
-        this.startTime = null;
+        this.timeElapsed = 0;
         this.singlePlayerMode = false;
-        this.playerNames = { X: 'Player X', O: 'Player O' };
         this.moves = 0;
 
-        this.initializeElements();
-        this.setupEventListeners();
-        this.updateScoreDisplay();
-    }
+        // Improved cache with size limit
+        this.minimaxCache = new Map();
+        this.MAX_CACHE_SIZE = 1000;
 
-    initializeElements() {
-        // Game board cells
+        // Get DOM elements
         this.cells = Array.from(document.querySelectorAll('.cell'));
-        
-        // Player inputs
+        this.newGameButton = document.getElementById('new-game');
+        this.undoMoveButton = document.getElementById('undo-move');
+        this.resetStatsButton = document.getElementById('reset-stats');
+        this.modeSwitch = document.getElementById('single-player-mode');
         this.playerXInput = document.getElementById('player-x');
         this.playerOInput = document.getElementById('player-o');
-        
-        // Mode switch
-        this.modeSwitch = document.getElementById('single-player-mode');
-        
-        // Control buttons
-        this.newGameBtn = document.getElementById('new-game');
-        this.undoMoveBtn = document.getElementById('undo-move');
-        
-        // Score displays
-        this.xScoreDisplay = document.getElementById('x-score');
-        this.oScoreDisplay = document.getElementById('o-score');
-        
-        // Game info displays
         this.currentPlayerDisplay = document.getElementById('current-player');
         this.timerDisplay = document.getElementById('timer');
         this.movesDisplay = document.getElementById('moves');
+        this.historyText = document.querySelector('.history-container');
         
-        // History display
-        this.historyText = document.getElementById('history-text');
+        // Scoreboard elements
+        this.xScoreDisplay = document.getElementById('x-score');
+        this.oScoreDisplay = document.getElementById('o-score');
 
-        // Score elements
-        this.xScoreElement = document.querySelector('.x-score');
-        this.oScoreElement = document.querySelector('.o-score');
+        // Add debounce function
+        this.debounce = (func, wait) => {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        };
+
+        // Initialize the game
+        this.setupEventListeners();
+        this.updateScoreDisplay();
+        this.startTimer();
+
+        // Disable reset button initially
+        this.resetStatsButton.disabled = true;
+
+        // Add timer frame ID for cancellation
+        this.timerFrameId = null;
     }
 
     setupEventListeners() {
-        // Cell click events
-        this.cells.forEach(cell => {
-            cell.addEventListener('click', () => this.handleMove(parseInt(cell.dataset.index)));
+        // Optimize board click handling with single event listener
+        const gameBoard = document.querySelector('.game-board');
+        gameBoard.addEventListener('click', (event) => {
+            const cell = event.target.closest('.cell');
+            if (cell) {
+                this.handleMove(parseInt(cell.dataset.index));
+            }
         });
 
-        // Control button events
-        this.newGameBtn.addEventListener('click', () => this.resetBoard());
-        this.undoMoveBtn.addEventListener('click', () => this.undoMove());
+        // Optimize control buttons with event delegation
+        const controlButtons = document.querySelector('.control-buttons');
+        controlButtons.addEventListener('click', (event) => {
+            const button = event.target.closest('.control-btn');
+            if (!button || button.disabled) return;
 
-        // Mode switch event
+            switch (button.id) {
+                case 'new-game':
+                    this.resetBoard();
+                    break;
+                case 'undo-move':
+                    this.undoMove();
+                    break;
+                case 'reset-stats':
+                    this.resetStats();
+                    break;
+            }
+        });
+
+        // Debounce player name input events
+        const updatePlayerName = this.debounce((player, input) => {
+            const name = this.sanitizeInput(input.value.trim()) || player;
+            this.playerNames[player] = name;
+            this.updateScoreDisplay();
+            this.updateCurrentPlayerDisplay();
+        }, 250);
+
+        this.playerXInput.addEventListener('input', () => updatePlayerName('X', this.playerXInput));
+        this.playerOInput.addEventListener('input', () => updatePlayerName('O', this.playerOInput));
+
+        // Mode switches
         this.modeSwitch.addEventListener('change', () => this.toggleGameMode());
-
-        // Player name input events
-        this.playerXInput.addEventListener('input', () => {
-            const name = this.playerXInput.value.trim() || 'Player X';
-            this.playerNames.X = name;
-            this.updateScoreDisplay();
-            this.updateCurrentPlayerDisplay();
-        });
-
-        this.playerOInput.addEventListener('input', () => {
-            const name = this.playerOInput.value.trim() || 'Player O';
-            this.playerNames.O = name;
-            this.updateScoreDisplay();
-            this.updateCurrentPlayerDisplay();
-        });
     }
 
     updateScoreDisplay() {
-        // Update score display text
-        this.xScoreElement.innerHTML = `${this.playerNames.X}: <span id="x-score">${this.playerXScore}</span>`;
-        this.oScoreElement.innerHTML = `${this.playerNames.O}: <span id="o-score">${this.playerOScore}</span>`;
+        // Update score display text with player names
+        const xName = this.playerNames.X || 'X';
+        const oName = this.playerNames.O || 'O';
+        this.xScoreDisplay.parentElement.innerHTML = `${xName}: <span id="x-score">${this.playerXScore}</span>`;
+        this.oScoreDisplay.parentElement.innerHTML = `${oName}: <span id="o-score">${this.playerOScore}</span>`;
+        
+        // Re-assign score display elements after innerHTML update
+        this.xScoreDisplay = document.getElementById('x-score');
+        this.oScoreDisplay = document.getElementById('o-score');
     }
 
     updateCurrentPlayerDisplay() {
@@ -113,7 +161,7 @@ class ModernTicTacToe {
     }
 
     handleMove(index) {
-        if (this.board[index] === '' && !this.checkWinner()) {
+        if (this.board[index] === '' && !this.checkWinner() && !this.gameOver) {
             // Start timer on first move
             if (!this.timerRunning) {
                 this.timerRunning = true;
@@ -128,13 +176,27 @@ class ModernTicTacToe {
             if (this.singlePlayerMode && 
                 this.currentPlayer === 'O' && 
                 !this.checkWinner() && 
-                this.board.includes('')) {
-                setTimeout(() => this.makeAIMove(), 500);
+                this.board.includes('') &&
+                !this.gameOver) {
+                setTimeout(() => {
+                    if (!this.gameOver) {
+                        this.makeAIMove();
+                    }
+                }, AI_MOVE_DELAY);
             }
         }
     }
 
     makeMove(index) {
+        this.updateBoard(index);
+        this.updateMoveHistory(index);
+        this.checkGameState();
+
+        // Enable reset button when a move is made
+        this.resetStatsButton.disabled = false;
+    }
+
+    updateBoard(index) {
         this.board[index] = this.currentPlayer;
         const cell = this.cells[index];
         cell.textContent = this.currentPlayer;
@@ -143,27 +205,35 @@ class ModernTicTacToe {
         // Update moves counter
         this.moves++;
         this.movesDisplay.textContent = `Moves: ${this.moves}`;
+    }
 
-        // Record move in history
+    updateMoveHistory(index) {
         const row = Math.floor(index / 3) + 1;
         const col = (index % 3) + 1;
-        const moveTime = new Date().toLocaleTimeString();
-        const moveText = `[${moveTime}] ${this.playerNames[this.currentPlayer]}: (${row},${col})\n`;
+        const moveTime = this.timerDisplay.textContent.replace('Time: ', '');
+        const playerName = this.playerNames[this.currentPlayer];
+        const moveText = `[${moveTime}] ${playerName}: (${row},${col})\n`;
         this.historyText.textContent += moveText;
         this.historyText.scrollTop = this.historyText.scrollHeight;
 
         // Add to move history
         this.moveHistory.push({ index, player: this.currentPlayer });
-        this.undoMoveBtn.disabled = false;
+        this.undoMoveButton.disabled = false;
+    }
 
+    checkGameState() {
         if (this.checkWinner()) {
             this.handleWin();
         } else if (!this.board.includes('')) {
             this.handleDraw();
         } else {
-            this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
-            this.updateCurrentPlayerDisplay();
+            this.switchPlayer();
         }
+    }
+
+    switchPlayer() {
+        this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+        this.updateCurrentPlayerDisplay();
     }
 
     makeAIMove() {
@@ -198,40 +268,52 @@ class ModernTicTacToe {
     }
 
     minimax(board, depth, isMaximizing, alpha, beta) {
+        const boardKey = board.join('');
+        
+        // Check cache first
+        if (this.minimaxCache.has(boardKey)) {
+            return this.minimaxCache.get(boardKey);
+        }
+
         // Check terminal states
         let result = this.checkWinnerForMinimax();
         if (result !== null) {
-            return result === 'O' ? 10 - depth : depth - 10;
+            const score = result === 'O' ? 10 - depth : depth - 10;
+            this.minimaxCache.set(boardKey, score);
+            return score;
         }
         if (!board.includes('')) {
+            this.minimaxCache.set(boardKey, 0);
             return 0;
         }
 
         if (isMaximizing) {
             let bestScore = -Infinity;
-            for (let i = 0; i < 9; i++) {
+            for (let i = 0; i < BOARD_SIZE; i++) {
                 if (board[i] === '') {
                     board[i] = 'O';
                     let score = this.minimax(board, depth + 1, false, alpha, beta);
                     board[i] = '';
                     bestScore = Math.max(score, bestScore);
                     alpha = Math.max(alpha, bestScore);
-                    if (beta <= alpha) break; // Alpha-Beta pruning
+                    if (beta <= alpha) break;
                 }
             }
+            this.minimaxCache.set(boardKey, bestScore);
             return bestScore;
         } else {
             let bestScore = Infinity;
-            for (let i = 0; i < 9; i++) {
+            for (let i = 0; i < BOARD_SIZE; i++) {
                 if (board[i] === '') {
                     board[i] = 'X';
                     let score = this.minimax(board, depth + 1, true, alpha, beta);
                     board[i] = '';
                     bestScore = Math.min(score, bestScore);
                     beta = Math.min(beta, bestScore);
-                    if (beta <= alpha) break; // Alpha-Beta pruning
+                    if (beta <= alpha) break;
                 }
             }
+            this.minimaxCache.set(boardKey, bestScore);
             return bestScore;
         }
     }
@@ -271,18 +353,21 @@ class ModernTicTacToe {
     }
 
     handleWin() {
-        this.timerRunning = false;
+        this.stopTimer();
         const winnerName = this.playerNames[this.currentPlayer];
-        this.historyText.textContent += `${winnerName} wins!\n`;
+        const totalTime = this.timerDisplay.textContent.replace('Time: ', '');
+        const summaryText = `\n${winnerName} wins!\nTotal Moves: ${this.moves}, Total Time: ${totalTime}\n`;
+        this.historyText.textContent += summaryText;
 
         // Update score
         if (this.currentPlayer === 'X') {
             this.playerXScore++;
-            this.xScoreDisplay.textContent = this.playerXScore;
         } else {
             this.playerOScore++;
-            this.oScoreDisplay.textContent = this.playerOScore;
         }
+        
+        // Update scoreboard display
+        this.updateScoreDisplay();
 
         // Highlight winning combination
         this.highlightWinningCombination();
@@ -318,8 +403,10 @@ class ModernTicTacToe {
     }
 
     handleDraw() {
-        this.timerRunning = false;
-        this.historyText.textContent += "Game Draw!\n";
+        this.stopTimer();
+        const totalTime = this.timerDisplay.textContent.replace('Time: ', '');
+        const summaryText = `\nGame Draw!\nTotal Moves: ${this.moves}, Total Time: ${totalTime}\n`;
+        this.historyText.textContent += summaryText;
         setTimeout(() => {
             alert("It's a Draw!");
             this.resetBoard();
@@ -347,22 +434,41 @@ class ModernTicTacToe {
             this.historyText.scrollTop = this.historyText.scrollHeight;
 
             if (this.moveHistory.length === 0) {
-                this.undoMoveBtn.disabled = true;
-                this.timerRunning = false;
+                this.undoMoveButton.disabled = true;
+                this.stopTimer();
                 this.startTime = null;
-                this.timerDisplay.textContent = "Time: 0:00";
+                this.timerDisplay.textContent = "Time: 00:00:00";
+
+                // Disable reset button if no moves are left
+                this.resetStatsButton.disabled = true;
             }
         }
     }
 
     updateTimer() {
         if (this.timerRunning && this.startTime) {
-            const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
-            const minutes = Math.floor(elapsed / 60);
-            const seconds = elapsed % 60;
-            this.timerDisplay.textContent = 
-                `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-            setTimeout(() => this.updateTimer(), 1000);
+            const updateTimerDisplay = () => {
+                const elapsed = Date.now() - this.startTime;
+                const minutes = Math.floor(elapsed / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                const milliseconds = Math.floor((elapsed % 1000) / 10);
+                this.timerDisplay.textContent = 
+                    `Time: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+                
+                if (this.timerRunning) {
+                    this.timerFrameId = requestAnimationFrame(updateTimerDisplay);
+                }
+            };
+            
+            this.timerFrameId = requestAnimationFrame(updateTimerDisplay);
+        }
+    }
+
+    stopTimer() {
+        this.timerRunning = false;
+        if (this.timerFrameId) {
+            cancelAnimationFrame(this.timerFrameId);
+            this.timerFrameId = null;
         }
     }
 
@@ -380,13 +486,13 @@ class ModernTicTacToe {
     }
 
     resetBoard() {
-        this.board = Array(9).fill('');
+        this.board = Array(BOARD_SIZE).fill('');
         this.currentPlayer = 'X';
         this.moveHistory = [];
-        this.timerRunning = false;
+        this.stopTimer();
         this.startTime = null;
-        this.timerDisplay.textContent = "Time: 0:00";
-        this.undoMoveBtn.disabled = true;
+        this.timerDisplay.textContent = "Time: 00:00:00";
+        this.undoMoveButton.disabled = true;
         
         // Reset moves counter
         this.moves = 0;
@@ -395,9 +501,10 @@ class ModernTicTacToe {
         // Update current player display
         this.updateCurrentPlayerDisplay();
 
-        // Update player names
-        this.playerNames.X = this.playerXInput.value || 'X';
-        this.playerNames.O = this.playerOInput.value || 'O';
+        // Update player names and scoreboard
+        this.playerNames.X = this.playerXInput.value.trim() || 'X';
+        this.playerNames.O = this.singlePlayerMode ? 'AI' : (this.playerOInput.value.trim() || 'O');
+        this.updateScoreDisplay();
 
         // Reset cells
         this.cells.forEach(cell => {
@@ -407,13 +514,55 @@ class ModernTicTacToe {
             cell.style.color = '';
         });
 
-        // Add reset message to history
-        this.historyText.textContent += "\n=== New Game ===\n";
+        // Add reset message to history with player names
+        this.historyText.textContent += `\n=== New Game: ${this.playerNames.X} vs ${this.playerNames.O} ===\n`;
         this.historyText.scrollTop = this.historyText.scrollHeight;
+
+        // Clear minimax cache on new game
+        this.clearMinimaxCache();
+    }
+
+    resetStats() {
+        // Reset scores
+        this.playerXScore = 0;
+        this.playerOScore = 0;
+        this.updateScoreDisplay();
+
+        // Reset timer
+        this.stopTimer();
+        this.timeElapsed = 0;
+        this.startTime = null;
+        this.timerDisplay.textContent = "Time: 0:00";
+
+        // Reset moves
+        this.moves = 0;
+        this.movesDisplay.textContent = "Moves: 0";
+
+        // Clear move history
+        this.historyText.textContent = "=== Game Stats Reset ===\n";
+        this.historyText.scrollTop = this.historyText.scrollHeight;
+
+        // Disable reset button after reset
+        this.resetStatsButton.disabled = true;
+
+        // Reset the board
+        this.resetBoard();
+    }
+
+    sanitizeInput(input) {
+        const div = document.createElement('div');
+        div.textContent = input;
+        return div.innerHTML;
+    }
+
+    clearMinimaxCache() {
+        if (this.minimaxCache.size > this.MAX_CACHE_SIZE) {
+            this.minimaxCache.clear();
+        }
     }
 }
 
 // Initialize the game when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new ModernTicTacToe();
+    new TicTacToe();
 });
