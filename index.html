@@ -1,41 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Basic meta tags for character encoding and responsive viewport -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XOXO.array</title>
+    <!-- Link to external stylesheet and favicon -->
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4V4zm6 0h4v4h-4V4z'/></svg>" type="image/svg+xml">
 </head>
 <body>
+    <!-- Main container for the game layout -->
     <div class="container">
-        <div class="game-area">
+        <!-- Left side: Title, Scoreboard, and Game Stats -->
+        <div class="left-panel">
+            <!-- Game title -->
             <div class="title-container">
                 <h1>TIC-TAC-TOE</h1>
                 <p class="subtitle">Powered by Arrays</p>
             </div>
-            
-            <div class="player-info">
-                <div class="score-board">
-                    <h2 class="score-title">SCOREBOARD</h2>
-                    <div class="score-container">
-                        <div class="score x-score">X: <span id="x-score">0</span></div>
-                        <div class="score o-score">O: <span id="o-score">0</span></div>
-                    </div>
+            <!-- Scoreboard section -->
+            <div class="score-board">
+                <h2 class="score-title">SCOREBOARD</h2>
+                <div class="score-container">
+                    <div class="score x-score">X: <span id="x-score">0</span></div>
+                    <div class="score o-score">O: <span id="o-score">0</span></div>
                 </div>
             </div>
+            <!-- Game status information -->
+            <div class="game-status">
+                <div class="game-info">
+                    <div id="current-player">Current Player: X</div>
+                    <div id="timer">Time: 00:00:00</div>
+                    <div id="moves">Moves: 0</div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Center: Main game area -->
+        <div class="game-area">
+            <!-- Game board grid (3x3) -->
             <div class="game-board">
+                <!-- First row -->
                 <div class="board-row">
                     <button class="cell" data-index="0"></button>
                     <button class="cell" data-index="1"></button>
                     <button class="cell" data-index="2"></button>
                 </div>
+                <!-- Second row -->
                 <div class="board-row">
                     <button class="cell" data-index="3"></button>
                     <button class="cell" data-index="4"></button>
                     <button class="cell" data-index="5"></button>
                 </div>
+                <!-- Third row -->
                 <div class="board-row">
                     <button class="cell" data-index="6"></button>
                     <button class="cell" data-index="7"></button>
@@ -43,6 +61,7 @@
                 </div>
             </div>
 
+            <!-- Game control buttons -->
             <div class="game-controls">
                 <div class="control-buttons">
                     <button id="new-game" class="control-btn">New Game</button>
@@ -52,15 +71,9 @@
             </div>
         </div>
 
+        <!-- Right side: Side panel with game information -->
         <div class="side-panel">
-            <div class="game-status">
-                <div class="game-info">
-                    <div id="current-player">Current Player: X</div>
-                    <div id="timer">Time: 00:00:00</div>
-                    <div id="moves">Moves: 0</div>
-                </div>
-            </div>
-
+            <!-- Player name input fields -->
             <div class="player-names">
                 <div class="player-input">
                     <label for="player-x">Player X:</label>
@@ -72,12 +85,15 @@
                 </div>
             </div>
 
+            <!-- Move history section -->
             <div class="move-history">
                 <h2>Move History</h2>
                 <div id="history-text" class="history-container"></div>
             </div>
 
+            <!-- Game mode toggles -->
             <div class="game-mode">
+                <!-- Single player mode toggle -->
                 <div class="mode-switch">
                     <label class="switch">
                         <input type="checkbox" id="single-player-mode">
@@ -85,6 +101,7 @@
                     </label>
                     <span>Single Player Mode</span>
                 </div>
+                <!-- Dark mode toggle -->
                 <div class="mode-switch">
                     <label class="switch">
                         <input type="checkbox" id="theme-toggle">
@@ -95,17 +112,57 @@
             </div>
         </div>
     </div>
+
+    <!-- JavaScript files -->
     <script src="game.js"></script>
+    <!-- Theme detection and initialization script -->
     <script>
+        // Theme detection and initialization
+        const themeToggle = document.getElementById('theme-toggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+        // Function to update theme based on dark mode preference
+        function updateTheme(isDark) {
+            if (isDark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            themeToggle.checked = isDark;
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Initialize theme based on system preference or saved preference
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                updateTheme(savedTheme === 'dark');
+            } else {
+                updateTheme(prefersDarkScheme.matches);
+            }
+        }
+
+        // Listen for system theme changes
+        prefersDarkScheme.addListener((e) => {
+            if (!localStorage.getItem('theme')) {
+                updateTheme(e.matches);
+            }
+        });
+
+        // Listen for manual theme toggle
+        themeToggle.addEventListener('change', () => {
+            updateTheme(themeToggle.checked);
+        });
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', initializeTheme);
+        initializeTheme();
+
+        // Update favicon based on current theme
         function updateFavicon() {
             const favicon = document.querySelector("link[rel='icon']");
             favicon.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%236C5CE7' d='M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4V4zm6 0h4v4h-4V4z'/></svg>";
         }
-
-        const themeToggle = document.getElementById('theme-toggle');
-        themeToggle.addEventListener('change', updateFavicon);
-
-        // Set initial favicon
         updateFavicon();
     </script>
 </body>

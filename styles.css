@@ -1,39 +1,46 @@
+/* Root CSS Variables - Light Theme */
 :root {
-    /* Light theme variables */
-    --x-color: #FF0000; /* Bright Red */
-    --o-color: #0000FF; /* Bright Blue */
-    --bg-color: #E8ECF3;
-    --frame-color: #FFFFFF;
-    --text-color: #1A202C;
-    --button-color: #6C5CE7;
-    --button-hover: #5D4ED6;
-    --accent-color: #93D7BE;
-    --border-color: #E2E8F0;
-    --shadow-color: rgba(108, 92, 231, 0.2);
+    /* Color variables */
+    --x-color: #FF0000; /* Player X color (Bright Red) */
+    --o-color: #0000FF; /* Player O color (Bright Blue) */
+    --bg-color: #E8ECF3; /* Background color */
+    --frame-color: #FFFFFF; /* Component frame color */
+    --text-color: #1A202C; /* Main text color */
+    --button-color: #6C5CE7; /* Primary button color */
+    --button-hover: #5D4ED6; /* Button hover state */
+    --accent-color: #93D7BE; /* Accent highlights */
+    --border-color: #E2E8F0; /* Border elements */
+    --shadow-color: rgba(108, 92, 231, 0.2); /* Shadow color with opacity */
     
-    /* Spacing */
+    /* Spacing variables for consistent layout */
     --spacing-xs: 4px;
     --spacing-sm: 8px;
     --spacing-md: 12px;
     --spacing-lg: 16px;
     --spacing-xl: 20px;
     
-    /* Borders */
+    /* Border styling variables */
     --border-width: 2px;
     --border-radius: 12px;
     --border-radius-sm: 8px;
     --border-radius-lg: 16px;
     
-    /* Shadows with more depth */
+    /* Shadow effects with layered depth */
     --shadow-main: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
     --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
     --shadow-hover: 0 6px 15px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.05);
     
-    /* Other */
+    /* Other visual effects */
     --gradient-main: linear-gradient(135deg, var(--frame-color), var(--bg-color));
     --transition-main: all 0.3s ease;
+    
+    /* Standardized shadow system */
+    --shadow-raised: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 6px 12px rgba(0, 0, 0, 0.12), 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
+/* Dark Theme Variables */
 [data-theme="dark"] {
     --bg-color: #0F172A;
     --frame-color: #1E293B;
@@ -46,15 +53,22 @@
     --shadow-main: 0 8px 20px var(--shadow-color);
     --shadow-inner: inset 0 2px 4px rgba(255, 255, 255, 0.05);
     --gradient-main: linear-gradient(135deg, var(--frame-color), var(--bg-color));
+    
+    /* Dark theme shadow adjustments */
+    --shadow-raised: 0 4px 6px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
+    --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-hover: 0 6px 12px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
+/* Global Reset and Base Styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Helvetica', sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
+/* Body Layout */
 body {
     background: var(--gradient-main);
     min-height: 100vh;
@@ -65,19 +79,28 @@ body {
     color: var(--text-color);
 }
 
+/* Main Container Layout */
 .container {
     display: flex;
     gap: var(--spacing-xl);
     padding: var(--spacing-xl);
 }
 
-/* Main Game Area */
+/* Left Panel Layout */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    width: 300px;
+}
+
+/* Main Game Area Styling */
 .game-area {
     flex: 1;
     background-color: var(--frame-color);
     padding: var(--spacing-xl);
     border-radius: var(--border-radius);
-    box-shadow: var(--shadow-main);
+    box-shadow: var(--shadow-raised);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -85,7 +108,7 @@ body {
     min-width: 0;
 }
 
-/* Side Panel */
+/* Side Panel Layout */
 .side-panel {
     width: 300px;
     display: flex;
@@ -95,34 +118,45 @@ body {
     top: var(--container-padding);
 }
 
+/* Title and Scoreboard Styling */
+.title-container, .score-board {
+    background: var(--frame-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-raised);
+    width: 100%;
+}
+
+/* Common Panel Styling */
 .game-status, .move-history, .player-names {
     background: var(--frame-color);
     border-radius: var(--border-radius);
     padding: var(--spacing-md);
-    box-shadow: var(--shadow-main);
+    box-shadow: var(--shadow-raised);
 }
 
-/* Title Section */
+/* Game Title Section */
 .title-container {
     text-align: center;
     position: relative;
-    padding: var(--spacing-xl) var(--spacing-lg);
-    margin: 0 auto var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    margin: 0 auto;
     background: var(--frame-color);
     border-radius: var(--border-radius);
-    box-shadow: var(--shadow-main);
-    max-width: 380px;
+    box-shadow: var(--shadow-raised);
     width: 100%;
     border: 1px solid var(--border-color);
 }
 
+/* Main Title Styling */
 h1 {
-    font-size: 2.5em;
+    font-size: min(2.0em, 5vw);
     font-weight: 900;
     text-transform: uppercase;
     margin: 0;
     padding: 0;
-    letter-spacing: 4px;
+    letter-spacing: min(4px, 0.5vw);
+    white-space: nowrap;
     background: linear-gradient(135deg, 
         var(--x-color) 0%, 
         #A3B8D9 50%, 
@@ -134,18 +168,20 @@ h1 {
     line-height: 1.2;
 }
 
+/* Subtitle Styling */
 .subtitle {
-    font-size: 0.95em;
+    font-size: min(0.95em, 3vw);
     font-weight: 500;
     background: linear-gradient(135deg, #A3B8D9, var(--button-color));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    letter-spacing: 3px;
+    letter-spacing: min(3px, 0.3vw);
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
-/* Dark mode title adjustments */
+/* Dark Theme Title Adjustments */
 [data-theme="dark"] h1 {
     background: linear-gradient(135deg, 
         var(--x-color) 0%, 
@@ -164,10 +200,6 @@ h1 {
     -webkit-text-fill-color: transparent;
 }
 
-/* Remove all animation keyframes */
-@keyframes gradient-move { }
-@keyframes subtitle-fade { }
-
 /* Player Info Section */
 .player-info {
     display: flex;
@@ -178,7 +210,7 @@ h1 {
     align-items: center;
 }
 
-/* Player Names Section */
+/* Player Names Input Section */
 .player-names {
     display: flex;
     flex-direction: column;
@@ -189,25 +221,29 @@ h1 {
     box-shadow: var(--shadow-main);
 }
 
+/* Player Input Field Container */
 .player-input {
     display: flex;
     align-items: center;
     padding: var(--spacing-md);
     background: var(--bg-color);
     border-radius: var(--border-radius-sm);
-    box-shadow: var(--shadow-inner);
+    box-shadow: var(--shadow-inset);
     border: 2px solid transparent;
     transition: var(--transition-main);
 }
 
+/* Player X Input Styling */
 .player-input:first-child {
     border-color: var(--x-color);
 }
 
+/* Player O Input Styling */
 .player-input:last-child {
     border-color: var(--o-color);
 }
 
+/* Input Labels */
 .player-input label {
     white-space: nowrap;
     font-weight: 600;
@@ -215,14 +251,17 @@ h1 {
     font-size: 0.95em;
 }
 
+/* Player X Label Color */
 .player-input:first-child label {
     color: var(--x-color);
 }
 
+/* Player O Label Color */
 .player-input:last-child label {
     color: var(--o-color);
 }
 
+/* Input Field Styling */
 .player-input input {
     flex: 1;
     padding: var(--spacing-sm) var(--spacing-md);
@@ -237,6 +276,7 @@ h1 {
     box-shadow: var(--shadow-main);
 }
 
+/* Input Focus States */
 .player-input input:focus {
     box-shadow: 0 0 0 2px var(--button-color);
 }
@@ -254,7 +294,7 @@ h1 {
     background: var(--frame-color);
     border-radius: var(--border-radius);
     padding: var(--spacing-md);
-    box-shadow: var(--shadow-main);
+    box-shadow: var(--shadow-raised);
     width: 100%;
     max-width: 380px;
 }
@@ -277,7 +317,7 @@ h1 {
     background: var(--bg-color);
     padding: var(--spacing-sm);
     border-radius: var(--border-radius-sm);
-    box-shadow: var(--shadow-inner);
+    box-shadow: var(--shadow-inset);
 }
 
 .score {
@@ -326,11 +366,11 @@ h1 {
     flex-direction: column;
     gap: var(--spacing-md);
     width: 100%;
-    max-width: 380px;
+    max-width: 500px;
     padding: var(--spacing-md);
     background: var(--bg-color);
     border-radius: var(--border-radius);
-    box-shadow: var(--shadow-inner);
+    box-shadow: var(--shadow-inset);
 }
 
 .board-row {
@@ -340,12 +380,12 @@ h1 {
 }
 
 .cell {
-    width: 110px;
-    height: 110px;
+    width: 150px;
+    height: 150px;
     border: none;
     background-color: var(--frame-color);
     border-radius: var(--border-radius-sm);
-    font-size: 42px;
+    font-size: 48px;
     font-weight: bold;
     cursor: pointer;
     transition: var(--transition-main);
@@ -378,7 +418,7 @@ h1 {
     padding: var(--spacing-md);
     background: var(--bg-color);
     border-radius: var(--border-radius);
-    box-shadow: var(--shadow-inner);
+    box-shadow: var(--shadow-inset);
 }
 
 .control-buttons {
@@ -441,7 +481,7 @@ h1 {
     padding: var(--spacing-md);
     background: var(--bg-color);
     border-radius: var(--border-radius-sm);
-    box-shadow: var(--shadow-inner);
+    box-shadow: var(--shadow-inset);
 }
 
 #current-player, #timer, #moves {
@@ -542,7 +582,7 @@ h1 {
     padding: var(--spacing-md);
     background: var(--bg-color);
     border-radius: var(--border-radius-sm);
-    box-shadow: var(--shadow-inner);
+    box-shadow: var(--shadow-inset);
     margin-top: var(--spacing-md);
     white-space: pre-line;
     line-height: 1.5;
@@ -628,7 +668,7 @@ input:checked + .slider:before {
     }
 
     .title-container {
-        padding: var(--spacing-lg) var(--spacing-md);
+        padding: var(--spacing-sm) var(--spacing-md);
     }
 
     h1 {
@@ -815,7 +855,7 @@ input:checked + .slider:before {
     padding: var(--spacing-md);
     background: var(--bg-color);
     border-radius: var(--border-radius-sm);
-    box-shadow: var(--shadow-inner);
+    box-shadow: var(--shadow-inset);
     color: var(--text-color);
     font-weight: 600;
     font-size: 0.95em;
@@ -925,4 +965,51 @@ input:checked + .slider:before {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+/* Main containers - raised effect */
+.title-container,
+.game-status,
+.move-history,
+.player-names,
+.game-mode,
+.score-board {
+    box-shadow: var(--shadow-raised);
+}
+
+/* Inner elements - inset effect */
+.game-board,
+.game-controls,
+.game-info,
+.history-container,
+.score-container,
+.player-input,
+.mode-switch {
+    box-shadow: var(--shadow-inset);
+}
+
+/* Interactive elements - raised with hover effect */
+.cell,
+.control-btn,
+.score {
+    box-shadow: var(--shadow-raised);
+    transition: var(--transition-main);
+}
+
+.cell:hover,
+.control-btn:hover:not(:disabled),
+.score:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+/* Input fields - subtle raised effect */
+.player-input input {
+    box-shadow: var(--shadow-raised);
+}
+
+/* Game info elements - raised effect */
+#current-player,
+#timer,
+#moves {
+    box-shadow: var(--shadow-raised);
 } 

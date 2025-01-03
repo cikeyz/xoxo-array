@@ -1,60 +1,27 @@
-// Constants
-const BOARD_SIZE = 9;
-const AI_MOVE_DELAY = 500;
-
-// Theme Toggle Functionality
-const themeToggle = document.getElementById('theme-toggle');
-
-// Check for system color scheme preference
-const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-
-// Function to update theme based on preference
-function updateTheme(isDark) {
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    themeToggle.checked = isDark;
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-}
-
-// Check for saved theme preference or use system preference
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-    updateTheme(savedTheme === 'dark');
-} else {
-    updateTheme(prefersDarkScheme.matches);
-}
-
-// Listen for system theme changes
-prefersDarkScheme.addEventListener('change', (e) => {
-    if (!localStorage.getItem('theme')) {
-        updateTheme(e.matches);
-    }
-});
-
-// Theme toggle event listener
-themeToggle.addEventListener('change', () => {
-    updateTheme(themeToggle.checked);
-});
+// Game configuration constants
+const BOARD_SIZE = 9;  // 3x3 board
+const AI_MOVE_DELAY = 500;  // 500ms delay for AI moves to make them visible
 
 class TicTacToe {
     constructor() {
-        // Initialize game state
-        this.board = Array(BOARD_SIZE).fill('');
-        this.currentPlayer = 'X';
+        // Initialize game state variables
+        this.board = Array(BOARD_SIZE).fill('');  // Empty board array
+        this.currentPlayer = 'X';  // X starts first
         this.gameOver = false;
-        this.moveHistory = [];
+        this.moveHistory = [];  // Array to store move history
         this.playerXScore = 0;
         this.playerOScore = 0;
-        this.playerNames = { X: 'X', O: 'O' };
+        this.playerNames = { X: 'X', O: 'O' };  // Default player names
         this.timerRunning = false;
         this.timeElapsed = 0;
-        this.singlePlayerMode = false;
-        this.moves = 0;
+        this.singlePlayerMode = false;  // Two-player mode by default
+        this.moves = 0;  // Counter for number of moves made
 
-        // Improved cache with size limit
+        // Cache for AI minimax algorithm optimization
         this.minimaxCache = new Map();
         this.MAX_CACHE_SIZE = 1000;
 
-        // Get DOM elements
+        // Get and store DOM element references
         this.cells = Array.from(document.querySelectorAll('.cell'));
         this.newGameButton = document.getElementById('new-game');
         this.undoMoveButton = document.getElementById('undo-move');
@@ -67,11 +34,11 @@ class TicTacToe {
         this.movesDisplay = document.getElementById('moves');
         this.historyText = document.querySelector('.history-container');
         
-        // Scoreboard elements
+        // Scoreboard element references
         this.xScoreDisplay = document.getElementById('x-score');
         this.oScoreDisplay = document.getElementById('o-score');
 
-        // Add debounce function
+        // Utility function for input debouncing
         this.debounce = (func, wait) => {
             let timeout;
             return function executedFunction(...args) {
@@ -84,20 +51,21 @@ class TicTacToe {
             };
         };
 
-        // Initialize the game
+        // Initialize game components
         this.setupEventListeners();
         this.updateScoreDisplay();
         this.startTimer();
 
-        // Disable reset button initially
+        // Initially disable reset button until first move
         this.resetStatsButton.disabled = true;
 
-        // Add timer frame ID for cancellation
+        // Timer animation frame ID for cleanup
         this.timerFrameId = null;
     }
 
+    // Set up all event listeners for game interactions
     setupEventListeners() {
-        // Optimize board click handling with single event listener
+        // Optimize board click handling with event delegation
         const gameBoard = document.querySelector('.game-board');
         gameBoard.addEventListener('click', (event) => {
             const cell = event.target.closest('.cell');
@@ -106,7 +74,7 @@ class TicTacToe {
             }
         });
 
-        // Optimize control buttons with event delegation
+        // Control buttons event delegation
         const controlButtons = document.querySelector('.control-buttons');
         controlButtons.addEventListener('click', (event) => {
             const button = event.target.closest('.control-btn');
@@ -125,7 +93,7 @@ class TicTacToe {
             }
         });
 
-        // Debounce player name input events
+        // Player name input handling with debouncing
         const updatePlayerName = this.debounce((player, input) => {
             const name = this.sanitizeInput(input.value.trim()) || player;
             this.playerNames[player] = name;
@@ -133,33 +101,34 @@ class TicTacToe {
             this.updateCurrentPlayerDisplay();
         }, 250);
 
+        // Add input listeners for player names
         this.playerXInput.addEventListener('input', () => updatePlayerName('X', this.playerXInput));
         this.playerOInput.addEventListener('input', () => updatePlayerName('O', this.playerOInput));
 
-        // Mode switches
+        // Game mode toggle listener
         this.modeSwitch.addEventListener('change', () => this.toggleGameMode());
     }
 
+    // Update scoreboard display with current scores and player names
     updateScoreDisplay() {
-        // Update score display text with player names
         const xName = this.playerNames.X || 'X';
         const oName = this.playerNames.O || 'O';
         this.xScoreDisplay.parentElement.innerHTML = `${xName}: <span id="x-score">${this.playerXScore}</span>`;
         this.oScoreDisplay.parentElement.innerHTML = `${oName}: <span id="o-score">${this.playerOScore}</span>`;
         
-        // Re-assign score display elements after innerHTML update
+        // Re-cache score display elements after innerHTML update
         this.xScoreDisplay = document.getElementById('x-score');
         this.oScoreDisplay = document.getElementById('o-score');
     }
 
+    // Update current player display with name and turn indicator
     updateCurrentPlayerDisplay() {
         this.currentPlayerDisplay.textContent = `Current Player: ${this.playerNames[this.currentPlayer]}`;
-        // Remove both classes first
         this.currentPlayerDisplay.classList.remove('x-turn', 'o-turn');
-        // Add the appropriate class
         this.currentPlayerDisplay.classList.add(this.currentPlayer.toLowerCase() + '-turn');
     }
 
+    // Handle player move on cell click
     handleMove(index) {
         if (this.board[index] === '' && !this.checkWinner() && !this.gameOver) {
             // Start timer on first move
@@ -169,10 +138,10 @@ class TicTacToe {
                 this.updateTimer();
             }
 
-            // Make the move
+            // Make the player's move
             this.makeMove(index);
 
-            // If in single player mode and game isn't over, make AI move
+            // Handle AI move in single player mode
             if (this.singlePlayerMode && 
                 this.currentPlayer === 'O' && 
                 !this.checkWinner() && 
@@ -187,26 +156,29 @@ class TicTacToe {
         }
     }
 
+    // Process a move at the given index
     makeMove(index) {
         this.updateBoard(index);
         this.updateMoveHistory(index);
         this.checkGameState();
 
-        // Enable reset button when a move is made
+        // Enable reset button after first move
         this.resetStatsButton.disabled = false;
     }
 
+    // Update the game board with the current move
     updateBoard(index) {
         this.board[index] = this.currentPlayer;
         const cell = this.cells[index];
         cell.textContent = this.currentPlayer;
         cell.classList.add(this.currentPlayer.toLowerCase());
 
-        // Update moves counter
+        // Update move counter
         this.moves++;
         this.movesDisplay.textContent = `Moves: ${this.moves}`;
     }
 
+    // Record move in history and update display
     updateMoveHistory(index) {
         const row = Math.floor(index / 3) + 1;
         const col = (index % 3) + 1;
@@ -216,11 +188,12 @@ class TicTacToe {
         this.historyText.textContent += moveText;
         this.historyText.scrollTop = this.historyText.scrollHeight;
 
-        // Add to move history
+        // Store move for undo functionality
         this.moveHistory.push({ index, player: this.currentPlayer });
         this.undoMoveButton.disabled = false;
     }
 
+    // Check game state after each move
     checkGameState() {
         if (this.checkWinner()) {
             this.handleWin();
@@ -231,11 +204,13 @@ class TicTacToe {
         }
     }
 
+    // Switch to the next player
     switchPlayer() {
         this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
         this.updateCurrentPlayerDisplay();
     }
 
+    // AI move calculation and execution
     makeAIMove() {
         const move = this.findBestMove();
         if (move !== null) {
@@ -243,42 +218,173 @@ class TicTacToe {
         }
     }
 
+    // Find the best move using minimax algorithm with improved evaluation
     findBestMove() {
         let bestScore = -Infinity;
-        let bestMove = null;
+        let bestMoves = [];
         let alpha = -Infinity;
         let beta = Infinity;
+
+        // First two moves strategy
+        if (this.moveHistory.length === 0) {
+            // First move: Take center or corner
+            return 4; // Always take center first
+        } else if (this.moveHistory.length === 2) {
+            // Second move: If center is taken, take corner. If corner is taken, take center
+            if (this.board[4] === 'X') {
+                const corners = [0, 2, 6, 8];
+                return corners[Math.floor(Math.random() * corners.length)];
+            } else {
+                return 4;
+            }
+        }
 
         // Try each available move
         for (let i = 0; i < 9; i++) {
             if (this.board[i] === '') {
                 this.board[i] = 'O';
-                let score = this.minimax(this.board, 0, false, alpha, beta);
+                let score = this.minimax(this.board, 0, false, alpha, beta) + this.evaluatePosition(i);
                 this.board[i] = '';
 
                 if (score > bestScore) {
                     bestScore = score;
-                    bestMove = i;
+                    bestMoves = [i];
+                } else if (score === bestScore) {
+                    bestMoves.push(i);
                 }
                 alpha = Math.max(alpha, bestScore);
             }
         }
 
-        return bestMove;
+        // If we can win immediately, do it
+        for (const move of bestMoves) {
+            this.board[move] = 'O';
+            if (this.checkWinnerForMinimax() === 'O') {
+                this.board[move] = '';
+                return move;
+            }
+            this.board[move] = '';
+        }
+
+        // If opponent can win next move, block it
+        for (let i = 0; i < 9; i++) {
+            if (this.board[i] === '') {
+                this.board[i] = 'X';
+                if (this.checkWinnerForMinimax() === 'X') {
+                    this.board[i] = '';
+                    return i;
+                }
+                this.board[i] = '';
+            }
+        }
+
+        // Choose randomly from best moves for less predictability
+        return bestMoves[Math.floor(Math.random() * bestMoves.length)];
     }
 
+    // Evaluate the strategic value of a position
+    evaluatePosition(index) {
+        let score = 0;
+        const board = this.board;
+
+        // Strategic position values
+        const positionValues = [
+            5, 3, 5, // Corners are highly valued
+            3, 8, 3, // Center is most valuable
+            5, 3, 5  // Corners are highly valued
+        ];
+        score += positionValues[index] * 0.5;
+
+        // Check for potential fork opportunities
+        if (this.canCreateFork(index, 'O')) {
+            score += 50;
+        }
+
+        // Block opponent's fork opportunities
+        if (this.canCreateFork(index, 'X')) {
+            score += 40;
+        }
+
+        // Evaluate lines (rows, columns, diagonals)
+        score += this.evaluateLines(index);
+
+        return score;
+    }
+
+    // Check if a move can create a fork (two winning opportunities)
+    canCreateFork(index, player) {
+        if (this.board[index] !== '') return false;
+        
+        this.board[index] = player;
+        let winningLines = 0;
+        const lines = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+            [0, 4, 8], [2, 4, 6] // diagonals
+        ];
+
+        for (const line of lines) {
+            let playerCount = 0;
+            let emptyCount = 0;
+            for (const pos of line) {
+                if (this.board[pos] === player) playerCount++;
+                if (this.board[pos] === '') emptyCount++;
+            }
+            if (playerCount === 2 && emptyCount === 1) winningLines++;
+        }
+
+        this.board[index] = '';
+        return winningLines >= 2;
+    }
+
+    // Evaluate potential lines (rows, columns, diagonals)
+    evaluateLines(index) {
+        let score = 0;
+        const lines = this.getLinesForPosition(index);
+
+        for (const line of lines) {
+            let oCount = 0;
+            let xCount = 0;
+            let emptyCount = 0;
+
+            for (const pos of line) {
+                if (this.board[pos] === 'O') oCount++;
+                else if (this.board[pos] === 'X') xCount++;
+                else emptyCount++;
+            }
+
+            // Evaluate line potential
+            if (oCount === 2 && emptyCount === 1) score += 30; // Near win
+            if (xCount === 2 && emptyCount === 1) score += 25; // Block opponent
+            if (oCount === 1 && emptyCount === 2) score += 5;  // Potential line
+            if (xCount === 1 && emptyCount === 2) score += 3;  // Block potential line
+        }
+
+        return score;
+    }
+
+    // Get all lines that contain the given position
+    getLinesForPosition(index) {
+        const lines = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+            [0, 4, 8], [2, 4, 6] // diagonals
+        ];
+
+        return lines.filter(line => line.includes(index));
+    }
+
+    // Enhanced minimax algorithm with strategic position evaluation
     minimax(board, depth, isMaximizing, alpha, beta) {
         const boardKey = board.join('');
         
-        // Check cache first
         if (this.minimaxCache.has(boardKey)) {
             return this.minimaxCache.get(boardKey);
         }
 
-        // Check terminal states
         let result = this.checkWinnerForMinimax();
         if (result !== null) {
-            const score = result === 'O' ? 10 - depth : depth - 10;
+            const score = result === 'O' ? 1000 - depth : depth - 1000; // Much higher stakes
             this.minimaxCache.set(boardKey, score);
             return score;
         }
@@ -318,6 +424,7 @@ class TicTacToe {
         }
     }
 
+    // Enhanced win checking for minimax
     checkWinnerForMinimax() {
         const winPatterns = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
