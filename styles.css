@@ -91,12 +91,14 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xl);
-    width: 300px;
+    flex: 0 1 300px; /* flex-grow: 0, flex-shrink: 1, flex-basis: 300px */
+    min-width: 250px; /* Prevent from becoming too narrow */
+    max-width: 320px; /* Cap width on larger screens before stacking */
 }
 
 /* Main Game Area Styling */
 .game-area {
-    flex: 1;
+    flex: 1 1 auto; /* Allow game area to grow and shrink, with an automatic basis */
     background-color: var(--frame-color);
     padding: var(--spacing-xl);
     border-radius: var(--border-radius);
@@ -110,12 +112,14 @@ body {
 
 /* Side Panel Layout */
 .side-panel {
-    width: 300px;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xl);
+    flex: 0 1 300px; /* flex-grow: 0, flex-shrink: 1, flex-basis: 300px */
+    min-width: 250px; /* Prevent from becoming too narrow */
+    max-width: 320px; /* Cap width on larger screens before stacking */
     position: sticky;
-    top: var(--container-padding);
+    top: var(--spacing-xl); /* Was --container-padding, which was undefined. Using --spacing-xl. */
 }
 
 /* Title and Scoreboard Styling */
@@ -365,23 +369,26 @@ h1 {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
-    width: 100%;
-    max-width: 500px;
+    width: 100%; /* Take full width of its container */
+    max-width: 500px; /* Max size */
+    min-width: 240px; /* Min size, considering cell sizes and gaps for smaller views */
     padding: var(--spacing-md);
     background: var(--bg-color);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-inset);
+    margin-left: auto; /* Center the board if its container is wider */
+    margin-right: auto; /* Center the board if its container is wider */
 }
 
 .board-row {
     display: flex;
     gap: var(--spacing-md);
-    justify-content: center;
+    justify-content: center; /* This remains useful */
 }
 
 .cell {
-    width: 150px;
-    height: 150px;
+    flex: 1; /* Allow cells to grow and shrink equally */
+    aspect-ratio: 1 / 1; /* Maintain square shape */
     border: none;
     background-color: var(--frame-color);
     border-radius: var(--border-radius-sm);
@@ -441,7 +448,7 @@ h1 {
     width: 100%;
     text-align: center;
     white-space: nowrap;
-    font-size: 0.9em;
+    font-size: clamp(0.8em, 2.2vw, 0.9em); /* Responsive font size for control buttons */
     height: 38px;
     display: flex;
     align-items: center;
@@ -492,7 +499,7 @@ h1 {
     font-weight: 600;
     color: var(--text-color);
     transition: var(--transition-main);
-    font-size: 0.95em;
+    font-size: clamp(0.85em, 2.5vw, 0.95em); /* Responsive font size */
     text-align: center;
     height: 38px;
     display: flex;
@@ -655,7 +662,7 @@ input:checked + .slider:before {
         padding: var(--spacing-lg);
     }
     
-    .side-panel, .game-area {
+    .left-panel, .side-panel, .game-area { /* Added .left-panel here */
         width: 100%;
         max-width: 380px;
     }
@@ -682,14 +689,13 @@ input:checked + .slider:before {
     }
 
     .cell {
-        width: 80px;
-        height: 80px;
-        font-size: 32px;
+        /* width and height are now handled by flex and aspect-ratio */
+        font-size: clamp(24px, 8vw, 48px); /* Responsive font size for X/O */
     }
 
     .control-btn {
         height: 34px;
-        font-size: 0.85em;
+        /* font-size is now handled by clamp() in the base .control-btn style */
     }
 
     .history-container {
@@ -700,9 +706,10 @@ input:checked + .slider:before {
 
 @media (max-width: 480px) {
     .cell {
-        width: 70px;
-        height: 70px;
-        font-size: 28px;
+        /* width and height are now handled by flex and aspect-ratio */
+        /* font-size is already handled by clamp() in the base .cell style or 768px media query */
+        /* We can add a more specific clamp or vw unit if needed for very small screens */
+        font-size: clamp(20px, 7vw, 32px); /* Further adjust for very small screens */
     }
 
     .control-buttons {
@@ -714,7 +721,7 @@ input:checked + .slider:before {
     }
 
     #current-player, #timer, #moves {
-        font-size: 0.85em;
+        /* font-size is now handled by clamp() in their base styles */
         height: 34px;
     }
 
