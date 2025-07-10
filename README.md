@@ -8,13 +8,12 @@
 ### _A modern, feature-rich Tic-Tac-Toe game powered by pure JavaScript. ✨_
 
 <!-- Badges are a great way to show project status at a glance! -->
-<!-- Remember to replace 'your-username' and 'your-repo-name' with your actual GitHub details -->
 <p align="center">
-  <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/your-username/your-repo-name?style=for-the-badge&color=blueviolet">
-  <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/your-username/your-repo-name?style=for-the-badge&color=blue">
-  <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/your-username/your-repo-name?style=for-the-badge&color=green">
-  <img alt="GitHub issues" src="https://img.shields.io/github/issues/your-username/your-repo-name?style=for-the-badge&color=orange">
-  <img alt="GitHub license" src="https://img.shields.io/github/license/your-username/your-repo-name?style=for-the-badge&color=informational">
+  <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/cikeyz/xoxo-array?style=for-the-badge&color=blueviolet">
+  <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/cikeyz/xoxo-array?style=for-the-badge&color=blue">
+  <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/cikeyz/xoxo-array?style=for-the-badge&color=green">
+  <img alt="GitHub issues" src="https://img.shields.io/github/issues/cikeyz/xoxo-array?style=for-the-badge&color=orange">
+  <img alt="GitHub license" src="https://img.shields.io/github/license/cikeyz/xoxo-array?style=for-the-badge&color=informational">
 </p>
 
 </div>
@@ -52,8 +51,8 @@ Getting this project up and running is as simple as it gets. No complex builds o
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
-    cd your-repo-name
+    git clone [https://github.com/cikeyz/xoxo-array.git](https://github.com/cikeyz/xoxo-array.git)
+    cd xoxo-array
     ```
 
 2.  **Open in your browser**
@@ -110,14 +109,14 @@ This project is distributed under the MIT License. See `LICENSE.txt` for more in
 
 ## 📬 Contact
 
-**Carl Kristian (CK)**
+**Carl Kristian (CK) Ortiz**
 
-* GitHub: [@your-username](https://github.com/your-username)
-* LinkedIn: [Your LinkedIn Profile](https://linkedin.com/in/your-profile)
-* Email: [your.email@example.com](mailto:your.email@example.com)
+* GitHub: [@cikeyz](https://github.com/cikeyz)
+* LinkedIn: [ck-ortiz](https://www.linkedin.com/in/ck-ortiz)
+* Email: [carlkristianrortiz@iskolarngbayan.pup.edu.ph](mailto:carlkristianrortiz@iskolarngbayan.pup.edu.ph)
 
 <br>
 
 <div align="center">
-  _Crafted with ☕ and a bit of chaos._
+  __Crafted with ☕ and a bit of chaos.__
 </div>
