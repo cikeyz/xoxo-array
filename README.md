@@ -85,5 +85,5 @@ MIT. See [LICENSE](LICENSE).
 ## Course Note
 
 Built for CMPE 201 (Data Structures and Algorithms), Polytechnic University of
-the Philippines, under Engr. Julius S. Cansino. Final project case study.
+the Philippines, under Engr. Julian L. Lorico Jr.. Final project case study.
 Published here as a standalone project.
