@@ -7,13 +7,13 @@
 
 <p align="center">
   <a href="https://case-study-1-dsa-g3.vercel.app/">Live Demo</a>
-  &nbsp;·&nbsp;
+  &nbsp;&middot;&nbsp;
   <a href="https://cikeyz.github.io/xoxo-array/">GitHub Pages</a>
-  &nbsp;·&nbsp;
+  &nbsp;&middot;&nbsp;
   <a href="#quick-start">Quick Start</a>
-  &nbsp;·&nbsp;
+  &nbsp;&middot;&nbsp;
   <a href="#project-structure">Structure</a>
-  &nbsp;·&nbsp;
+  &nbsp;&middot;&nbsp;
   <a href="#license">License</a>
 </p>
 
@@ -52,17 +52,17 @@ minimax AI, track scores and move timing, and switch themes without leaving the 
 
 ## Quick Start
 
-`ash
+```bash
 git clone https://github.com/cikeyz/xoxo-array.git
 cd xoxo-array
 python -m http.server 8000
-`
+```
 
 Open http://127.0.0.1:8000/
 
 ## Project Structure
 
-`	ext
+```text
 xoxo-array/
 ├── index.html
 ├── game.js
@@ -70,7 +70,7 @@ xoxo-array/
 ├── LICENSE
 ├── README.md
 └── .gitignore
-`
+```
 
 ## Other experiments
 
