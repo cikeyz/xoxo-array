@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super XOXO.array - Multi-Mode Tic-Tac-Toe</title>
+    <style>
+        /* Root CSS Variables - Light Theme */
+        :root {
+            /* Color variables */
+            --x-color: #FF0000;
+            --o-color: #0000FF;
+            --bg-color: #E8ECF3;
+            --frame-color: #FFFFFF;
+            --text-color: #1A202C;
+            --button-color: #6C5CE7;
+            --button-hover: #5D4ED6;
+            --accent-color: #93D7BE;
+            --border-color: #E2E8F0;
+            --shadow-color: rgba(108, 92, 231, 0.2);
+            --warning-color: #F59E0B;
+            --success-color: #10B981;
+            --danger-color: #EF4444;
+            
+            /* Spacing variables */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            
+            /* Border styling */
+            --border-width: 2px;
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+            --border-radius-lg: 16px;
+            
+            /* Standardized Shadow System */
+            --shadow-container: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-surface: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            
+            /* Animations */
+            --transition-main: all 0.3s ease;
+            --transition-fast: all 0.15s ease;
+            --transition-slow: all 0.5s ease;
+            
+            /* Other effects */
+            --gradient-main: linear-gradient(135deg, var(--frame-color), var(--bg-color));
+        }
+        
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --bg-color: #0F172A;
+            --frame-color: #1E293B;
+            --text-color: #F8FAFC;
+            --button-color: #6366F1;
+            --button-hover: #4F46E5;
+            --accent-color: #475569;
+            --border-color: #334155;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --gradient-main: linear-gradient(135deg, var(--frame-color), var(--bg-color));
+            
+            /* Dark Theme Shadows */
+            --shadow-container: 0 2px 8px rgba(0, 0, 0, 0.25);
+            --shadow-surface: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        /* Body Layout */
+        body {
+            background: var(--gradient-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-color);
+        }
+        
+        /* Main Container */
+        .container {
+            display: flex;
+            gap: var(--spacing-xl);
+            padding: var(--spacing-xl);
+            max-width: 1400px;
+            width: 100%;
+            align-items: flex-start;
+        }
+        
+        /* Left Panel */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+            width: 300px;
+            min-width: 300px;
+        }
+        
+        /* Main Game Area */
+        .game-area {
+            flex: 1;
+            background-color: var(--frame-color);
+            padding: var(--spacing-xl);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-container);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xl);
+            min-width: 0;
+            min-height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Right Panel */
+        .right-panel {
+            width: 300px;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+        
+        /* Common Panel Styling */
+        .panel {
+            background: var(--frame-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-container);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Title Section */
+        .title-container {
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-lg);
+        }
+        
+        h1 {
+            font-size: 2em;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin: 0 0 var(--spacing-sm) 0;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--x-color) 0%, #A3B8D9 50%, var(--o-color) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+        
+        .subtitle {
+            font-size: 0.9em;
+            font-weight: 600;
+            background: linear-gradient(135deg, #A3B8D9, var(--button-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+        
+        /* Mode Selection */
+        .mode-selection {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            letter-spacing: 1.5px;
+            color: var(--text-color);
+            opacity: 0.85;
+            text-transform: uppercase;
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .mode-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+        }
+        
+        .mode-btn {
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-main);
+            text-align: center;
+            font-size: 0.8em;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.5px;
+        }
+        
+        .mode-btn {
+            box-shadow: var(--shadow-surface);
+        }
+        
+        .mode-btn.active {
+            background: var(--button-color);
+            color: white;
+            border-color: var(--button-color);
+            box-shadow: var(--shadow-raised);
+        }
+        
+        .mode-btn:hover:not(.active) {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-raised);
+        }
+        
+        /* Game Toggles */
+        .game-toggles {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            background: var(--bg-color);
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-inset);
+            border: 2px solid var(--border-color);
+            height: 52px;
+        }
+        
+        .toggle-label {
+            font-weight: 600;
+            font-size: 0.85em;
+            color: var(--text-color);
+            letter-spacing: 0.5px;
+        }
+        
+        /* Switch Styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-color);
+            transition: var(--transition-main);
+            border-radius: 34px;
+            box-shadow: var(--shadow-inset);
+            border: 2px solid var(--border-color);
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            background: var(--frame-color);
+            transition: var(--transition-main);
+            border-radius: 50%;
+            box-shadow: var(--shadow-surface);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        input:checked + .slider {
+            background: var(--button-color);
+            border-color: var(--button-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translate(20px, -50%);
+        }
+        
+        /* Player Info */
+        .player-names {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        .player-input {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-md);
+            background: var(--bg-color);
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-inset);
+            border: 2px solid transparent;
+            transition: var(--transition-main);
+            height: 52px;
+        }
+        
+        .player-input:first-child {
+            border-color: var(--x-color);
+        }
+        
+        .player-input:last-child {
+            border-color: var(--o-color);
+        }
+        
+        .player-input label {
+            white-space: nowrap;
+            font-weight: 600;
+            min-width: 90px;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+        
+        .player-input:first-child label {
+            color: var(--x-color);
+        }
+        
+        .player-input:last-child label {
+            color: var(--o-color);
+        }
+        
+        .player-input input {
+            flex: 1;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            outline: none;
+            transition: var(--transition-main);
+            background-color: var(--frame-color);
+            color: var(--text-color);
+            font-size: 0.85em;
+            min-width: 0;
+            box-shadow: var(--shadow-surface);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Limited Marks Indicator */
+        .marks-indicator {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        .marks-counter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            background: var(--bg-color);
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-inset);
+            border: 2px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.85em;
+            height: 48px;
+            letter-spacing: 0.5px;
+        }
+        
+        .marks-counter.x-marks {
+            border-color: var(--x-color);
+            color: var(--x-color);
+        }
+        
+        .marks-counter.o-marks {
+            border-color: var(--o-color);
+            color: var(--o-color);
+        }
+        
+        .marks-progress {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+        
+        .mark-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border-color);
+            transition: var(--transition-main);
+        }
+        
+        .mark-dot.filled {
+            background: currentColor;
+            box-shadow: var(--shadow-surface);
+        }
+        
+                /* Scoreboard */
+        .score-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+        
+        .score {
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.85em;
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition-main);
+            background: var(--frame-color);
+            box-shadow: var(--shadow-surface);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            border: 2px solid;
+            height: 48px;
+            letter-spacing: 0.5px;
+        }
+        
+        .score span {
+            background: var(--bg-color);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+            min-width: 32px;
+            font-size: 0.85em;
+            box-shadow: var(--shadow-inset);
+            font-weight: 700;
+        }
+        
+        .x-score {
+            color: var(--x-color);
+            border-color: var(--x-color);
+        }
+        
+        .o-score {
+            color: var(--o-color);
+            border-color: var(--o-color);
+        }
+        
+        /* Game Board Styles */
+        .game-board-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+        
+        /* Classic Board */
+        .classic-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--bg-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-inset);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        /* Super Board */
+        .super-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background: var(--bg-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-inset);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .sub-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm);
+            background: var(--frame-color);
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-surface);
+            border: 2px solid var(--border-color);
+            transition: var(--transition-main);
+            position: relative;
+        }
+        
+        .sub-board.active {
+            border-color: var(--button-color);
+            box-shadow: var(--shadow-raised);
+            transform: scale(1.02);
+            z-index: 2;
+        }
+        
+        .sub-board.won-x {
+            border-color: var(--x-color);
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), var(--frame-color));
+        }
+        
+        .sub-board.won-o {
+            border-color: var(--o-color);
+            background: linear-gradient(135deg, rgba(0, 0, 255, 0.1), var(--frame-color));
+        }
+        
+        .sub-board.draw {
+            border-color: var(--accent-color);
+            background: linear-gradient(135deg, rgba(147, 215, 190, 0.1), var(--frame-color));
+            opacity: 0.7;
+        }
+        
+        .sub-board-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: currentColor;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius-sm);
+            opacity: 0;
+            transition: var(--transition-main);
+            pointer-events: none;
+        }
+        
+        .sub-board.won-x .sub-board-overlay {
+            opacity: 1;
+            color: var(--x-color);
+            pointer-events: auto;
+        }
+        
+        .sub-board.won-o .sub-board-overlay {
+            opacity: 1;
+            color: var(--o-color);
+            pointer-events: auto;
+        }
+        
+        .sub-board.draw .sub-board-overlay {
+            opacity: 1;
+            color: var(--accent-color);
+            pointer-events: auto;
+        }
+        
+        /* Cell Styles */
+        .cell {
+            aspect-ratio: 1;
+            border: 1px solid var(--border-color);
+            background-color: var(--frame-color);
+            border-radius: var(--border-radius-sm);
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition-main);
+            box-shadow: var(--shadow-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Classic mode cells */
+        .classic-board .cell {
+            font-size: 3em;
+            min-height: 100px;
+        }
+        
+        /* Super mode cells */
+        .sub-board .cell {
+            font-size: 1.2em;
+            min-height: 40px;
+        }
+        
+        .cell:hover:not(.filled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-raised);
+            background-color: var(--accent-color);
+            border: 2px solid var(--button-color);
+        }
+        
+        .cell.filled {
+            cursor: default;
+        }
+        
+        .cell.x {
+            color: var(--x-color);
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), var(--frame-color));
+            border: 2px solid var(--x-color);
+        }
+        
+        .cell.o {
+            color: var(--o-color);
+            background: linear-gradient(135deg, rgba(0, 0, 255, 0.1), var(--frame-color));
+            border: 2px solid var(--o-color);
+        }
+        
+
+        
+        /* Mark placement animation */
+        .cell.placing {
+            animation: placeAnimation 0.3s ease-out;
+        }
+        
+        @keyframes placeAnimation {
+            0% {
+                transform: scale(0) rotate(180deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) rotate(90deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+        
+        /* Game Status */
+        .game-status {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+        
+        .game-status .score-container {
+            padding-bottom: var(--spacing-md);
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .game-info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--bg-color);
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-inset);
+        }
+        
+        #current-player, #timer, #moves, #game-mode-display {
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-sm);
+            background: var(--frame-color);
+            box-shadow: var(--shadow-surface);
+            font-weight: 600;
+            color: var(--text-color);
+            transition: var(--transition-main);
+            font-size: 0.85em;
+            text-align: center;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border-color);
+            letter-spacing: 0.5px;
+        }
+        
+        #current-player.x-turn {
+            border-color: var(--x-color);
+            color: var(--x-color);
+        }
+        
+        #current-player.o-turn {
+            border-color: var(--o-color);
+            color: var(--o-color);
+        }
+        
+        /* Game Controls */
+        .game-controls {
+            width: 100%;
+            max-width: 500px;
+            padding: var(--spacing-md);
+            background: var(--bg-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-inset);
+            border: 1px solid var(--border-color);
+        }
+        
+        .control-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            width: 100%;
+        }
+        
+        .control-btn {
+            padding: var(--spacing-md);
+            border: 2px solid var(--button-color);
+            border-radius: var(--border-radius-sm);
+            background-color: var(--button-color);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-main);
+            box-shadow: var(--shadow-surface);
+            width: 100%;
+            text-align: center;
+            white-space: nowrap;
+            font-size: 0.8em;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.5px;
+        }
+        
+        .control-btn:nth-child(2), .control-btn:nth-child(3) {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border-color: var(--accent-color);
+        }
+        
+        .control-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-raised);
+            background: var(--button-hover);
+        }
+        
+        .control-btn:nth-child(2):hover:not(:disabled),
+        .control-btn:nth-child(3):hover:not(:disabled) {
+            background: var(--accent-color);
+            opacity: 0.9;
+        }
+        
+        .control-btn:disabled {
+            background: #B0B0B0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+        
+        /* Move History */
+        .move-history {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+
+        
+        .history-container {
+            height: 220px;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+            background: var(--bg-color);
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-inset);
+            white-space: pre-line;
+            line-height: 1.6;
+            font-size: 0.8em;
+            border: 2px solid var(--border-color);
+            font-family: 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+                gap: var(--spacing-lg);
+                padding: var(--spacing-lg);
+            }
+            
+            .left-panel, .right-panel {
+                width: 100%;
+                max-width: 700px;
+            }
+            
+            .game-area {
+                width: 100%;
+                max-width: 700px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-md);
+                gap: var(--spacing-md);
+            }
+            
+            .left-panel, .right-panel {
+                width: 100%;
+            }
+            
+            .panel {
+                padding: var(--spacing-md);
+            }
+            
+            h1 {
+                font-size: 1.8em;
+                letter-spacing: 2px;
+            }
+            
+            .subtitle {
+                font-size: 0.8em;
+                letter-spacing: 1px;
+            }
+            
+            .classic-board .cell {
+                font-size: 2em;
+                min-height: 80px;
+            }
+            
+            .sub-board .cell {
+                font-size: 1em;
+                min-height: 30px;
+            }
+            
+            .super-board {
+                gap: var(--spacing-md);
+                padding: var(--spacing-md);
+            }
+            
+            .control-buttons {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+            
+            .mode-buttons {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: var(--spacing-md);
+            }
+            
+            .container {
+                padding: var(--spacing-sm);
+                gap: var(--spacing-sm);
+            }
+            
+            .classic-board .cell {
+                font-size: 1.5em;
+                min-height: 60px;
+            }
+            
+            .sub-board .cell {
+                font-size: 0.8em;
+                min-height: 25px;
+            }
+            
+            h1 {
+                font-size: 1.6em;
+                letter-spacing: 1px;
+            }
+            
+            .subtitle {
+                font-size: 0.75em;
+                letter-spacing: 0.5px;
+            }
+        }
+        
+        /* Win Effects */
+        .win-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        @keyframes confetti {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(720deg); }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--button-color);
+            animation: confetti 3s linear infinite;
+        }
+        
+        /* Blur overlay for super mode focus */
+        .blur-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(3px);
+            border-radius: var(--border-radius);
+            opacity: 0;
+            transition: var(--transition-slow);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .blur-overlay.active {
+            opacity: 1;
+        }
+        
+        /* Game mode indicator */
+        #game-mode-display {
+            background: linear-gradient(135deg, var(--button-color), var(--button-hover));
+            color: white;
+            font-weight: bold;
+            border-color: var(--button-color);
+        }
+        
+        /* Hidden class for mode switching */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <!-- Title -->
+            <div class="panel title-container">
+                <h1>Super TIC-TAC-TOE</h1>
+                <p class="subtitle">Multi-Mode Array Game</p>
+            </div>
+
+            <!-- Mode Selection -->
+            <div class="panel mode-selection">
+                <h3 class="section-title">Game Mode</h3>
+                <div class="mode-buttons">
+                    <button class="mode-btn active" data-mode="classic">Classic 3×3</button>
+                    <button class="mode-btn" data-mode="super">Super 9×9</button>
+                    <button class="mode-btn" data-mode="limited">Limited Marks</button>
+                    <button class="mode-btn" data-mode="super-limited">Super + Limited</button>
+                </div>
+            </div>
+
+            <!-- Game Toggles -->
+            <div class="panel game-toggles">
+                <div class="toggle-item">
+                    <span class="toggle-label">AI Opponent</span>
+                    <label class="switch">
+                        <input type="checkbox" id="ai-mode">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">Dark Theme</span>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Player Names -->
+            <div class="panel player-names">
+                <div class="player-input">
+                    <label for="player-x">Player X:</label>
+                    <input type="text" id="player-x" placeholder="Enter name">
+                </div>
+                <div class="player-input">
+                    <label for="player-o">Player O:</label>
+                    <input type="text" id="player-o" placeholder="Enter name">
+                </div>
+            </div>
+
+            <!-- Limited Marks Indicator -->
+            <div class="panel marks-indicator hidden" id="marks-indicator">
+                <h3 class="section-title">Marks Counter</h3>
+                <div class="marks-counter x-marks">
+                    <span>X Marks:</span>
+                    <div class="marks-progress" id="x-marks-progress">
+                        <div class="mark-dot"></div>
+                        <div class="mark-dot"></div>
+                        <div class="mark-dot"></div>
+                    </div>
+                </div>
+                <div class="marks-counter o-marks">
+                    <span>O Marks:</span>
+                    <div class="marks-progress" id="o-marks-progress">
+                        <div class="mark-dot"></div>
+                        <div class="mark-dot"></div>
+                        <div class="mark-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="game-area">
+            <div class="blur-overlay"></div>
+            
+            <!-- Game Board Container -->
+            <div class="game-board-container">
+                <!-- Classic Board -->
+                <div class="classic-board" id="classic-board">
+                    <!-- Classic 3x3 grid cells will be generated by JavaScript -->
+                </div>
+
+                <!-- Super Board -->
+                <div class="super-board hidden" id="super-board">
+                    <!-- 9 sub-boards will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="game-controls">
+                <div class="control-buttons">
+                    <button id="new-game" class="control-btn">New Game</button>
+                    <button id="undo-move" class="control-btn" disabled>Undo Move</button>
+                    <button id="reset-stats" class="control-btn" disabled>Reset Stats</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <!-- Game Status -->
+            <div class="panel game-status">
+                <!-- Scoreboard -->
+                <div class="score-container">
+                    <div class="score x-score">X: <span id="x-score">0</span></div>
+                    <div class="score o-score">O: <span id="o-score">0</span></div>
+                </div>
+                
+                <div class="game-info">
+                    <div id="current-player">Current Player: X</div>
+                    <div id="timer">Time: 00:00:00</div>
+                    <div id="moves">Moves: 0</div>
+                    <div id="game-mode-display">Classic Mode</div>
+                </div>
+            </div>
+
+            <!-- Move History -->
+            <div class="panel move-history">
+                <h3 class="section-title">Move History</h3>
+                <div id="history-text" class="history-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Effect Container -->
+    <div class="win-effect" id="win-effect"></div>
+
+    <script>
+        // Game configuration constants
+        const BOARD_SIZE = 9;
+        const AI_MOVE_DELAY = 500;
+        const MAX_MARKS_LIMITED = 3;
+        
+        // Game modes enum
+        const GAME_MODES = {
+            CLASSIC: 'classic',
+            SUPER: 'super',
+            LIMITED: 'limited',
+            SUPER_LIMITED: 'super-limited'
+        };
+
+        class SuperTicTacToe {
+            constructor() {
+                // Game state
+                this.gameMode = GAME_MODES.CLASSIC;
+                this.aiMode = false;
+                this.currentPlayer = 'X';
+                this.gameOver = false;
+                this.timerRunning = false;
+                this.timeElapsed = 0;
+                this.moves = 0;
+                this.moveHistory = [];
+                
+                // Player data
+                this.playerNames = { X: 'X', O: 'O' };
+                this.playerXScore = 0;
+                this.playerOScore = 0;
+                
+                // Classic mode board
+                this.classicBoard = Array(9).fill('');
+                
+                // Super mode data
+                this.superBoard = Array(9).fill(null).map(() => Array(9).fill(''));
+                this.superBoardStatus = Array(9).fill(''); // '', 'X', 'O', 'draw'
+                this.activeSubBoard = null; // null means any board
+                
+                // Limited marks mode data
+                this.playerMarks = { X: [], O: [] }; // Arrays of {boardIndex, cellIndex}
+                
+                // DOM elements
+                this.initializeDOM();
+                this.setupEventListeners();
+                this.initializeBoards();
+                this.updateDisplay();
+                
+                // AI cache
+                this.minimaxCache = new Map();
+                this.MAX_CACHE_SIZE = 10000;
+                
+                // Ensure boards are properly set up after initialization
+                setTimeout(() => {
+                    this.updateActiveSubBoard();
+                }, 0);
+            }
+
+            initializeDOM() {
+                // Mode buttons
+                this.modeButtons = document.querySelectorAll('.mode-btn');
+                
+                // Toggle switches
+                this.aiToggle = document.getElementById('ai-mode');
+                this.themeToggle = document.getElementById('theme-toggle');
+                
+                // Player inputs
+                this.playerXInput = document.getElementById('player-x');
+                this.playerOInput = document.getElementById('player-o');
+                
+                // Game boards
+                this.classicBoardElement = document.getElementById('classic-board');
+                this.superBoardElement = document.getElementById('super-board');
+                
+                // Status displays
+                this.currentPlayerDisplay = document.getElementById('current-player');
+                this.timerDisplay = document.getElementById('timer');
+                this.movesDisplay = document.getElementById('moves');
+                this.gameModeDisplay = document.getElementById('game-mode-display');
+                this.historyText = document.getElementById('history-text');
+                
+                // Score displays
+                this.xScoreDisplay = document.getElementById('x-score');
+                this.oScoreDisplay = document.getElementById('o-score');
+                
+                // Limited marks indicator
+                this.marksIndicator = document.getElementById('marks-indicator');
+                this.xMarksProgress = document.getElementById('x-marks-progress');
+                this.oMarksProgress = document.getElementById('o-marks-progress');
+                
+                // Control buttons
+                this.newGameButton = document.getElementById('new-game');
+                this.undoMoveButton = document.getElementById('undo-move');
+                this.resetStatsButton = document.getElementById('reset-stats');
+                
+                // Effect containers
+                this.winEffect = document.getElementById('win-effect');
+                this.blurOverlay = document.querySelector('.blur-overlay');
+            }
+
+            setupEventListeners() {
+                // Mode selection
+                this.modeButtons.forEach(btn => {
+                    btn.addEventListener('click', () => this.setGameMode(btn.dataset.mode));
+                });
+                
+                // Toggle switches
+                this.aiToggle.addEventListener('change', () => this.toggleAI());
+                this.themeToggle.addEventListener('change', () => this.toggleTheme());
+                
+                // Player name inputs
+                this.playerXInput.addEventListener('input', () => this.updatePlayerName('X'));
+                this.playerOInput.addEventListener('input', () => this.updatePlayerName('O'));
+                
+                // Control buttons
+                this.newGameButton.addEventListener('click', () => this.newGame());
+                this.undoMoveButton.addEventListener('click', () => this.undoMove());
+                this.resetStatsButton.addEventListener('click', () => this.resetStats());
+                
+                // Initialize theme
+                this.initializeTheme();
+            }
+
+            initializeBoards() {
+                this.createClassicBoard();
+                this.createSuperBoard();
+            }
+
+            createClassicBoard() {
+                this.classicBoardElement.innerHTML = '';
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('button');
+                    cell.className = 'cell';
+                    cell.dataset.index = i;
+                    cell.addEventListener('click', () => this.handleCellClick(-1, i));
+                    this.classicBoardElement.appendChild(cell);
+                }
+            }
+
+            createSuperBoard() {
+                this.superBoardElement.innerHTML = '';
+                for (let boardIndex = 0; boardIndex < 9; boardIndex++) {
+                    const subBoard = document.createElement('div');
+                    subBoard.className = 'sub-board';
+                    subBoard.dataset.boardIndex = boardIndex;
+                    
+                    for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
+                        const cell = document.createElement('button');
+                        cell.className = 'cell';
+                        cell.dataset.boardIndex = boardIndex;
+                        cell.dataset.cellIndex = cellIndex;
+                        cell.addEventListener('click', () => this.handleCellClick(boardIndex, cellIndex));
+                        subBoard.appendChild(cell);
+                    }
+                    
+                    // Add overlay for won/draw boards
+                    const overlay = document.createElement('div');
+                    overlay.className = 'sub-board-overlay';
+                    subBoard.appendChild(overlay);
+                    
+                    this.superBoardElement.appendChild(subBoard);
+                }
+            }
+
+            setGameMode(mode) {
+                this.gameMode = mode;
+                
+                // Update mode button states
+                this.modeButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                });
+                
+                // Show/hide appropriate boards
+                this.classicBoardElement.classList.toggle('hidden', !this.isClassicMode());
+                this.superBoardElement.classList.toggle('hidden', !this.isSuperMode());
+                
+                // Show/hide limited marks indicator
+                this.marksIndicator.classList.toggle('hidden', !this.isLimitedMode());
+                
+                // Update display
+                this.updateGameModeDisplay();
+                this.newGame();
+                
+                // Ensure super board cells are properly enabled after mode switch
+                if (this.isSuperMode()) {
+                    setTimeout(() => {
+                        this.updateActiveSubBoard();
+                    }, 0);
+                }
+            }
+
+            isClassicMode() {
+                return this.gameMode === GAME_MODES.CLASSIC || this.gameMode === GAME_MODES.LIMITED;
+            }
+
+            isSuperMode() {
+                return this.gameMode === GAME_MODES.SUPER || this.gameMode === GAME_MODES.SUPER_LIMITED;
+            }
+
+            isLimitedMode() {
+                return this.gameMode === GAME_MODES.LIMITED || this.gameMode === GAME_MODES.SUPER_LIMITED;
+            }
+
+            toggleAI() {
+                this.aiMode = this.aiToggle.checked;
+                if (this.aiMode) {
+                    this.playerOInput.value = "AI";
+                    this.playerOInput.disabled = true;
+                    this.playerNames.O = "AI";
+                } else {
+                    this.playerOInput.value = "O";
+                    this.playerOInput.disabled = false;
+                    this.playerNames.O = "O";
+                }
+                this.updateScoreDisplay();
+            }
+
+            toggleTheme() {
+                const isDark = this.themeToggle.checked;
+                if (isDark) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            }
+
+            initializeTheme() {
+                const savedTheme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const isDark = savedTheme ? savedTheme === 'dark' : prefersDark;
+                
+                this.themeToggle.checked = isDark;
+                this.toggleTheme();
+            }
+
+            updatePlayerName(player) {
+                const input = player === 'X' ? this.playerXInput : this.playerOInput;
+                this.playerNames[player] = input.value.trim() || player;
+                this.updateScoreDisplay();
+                this.updateCurrentPlayerDisplay();
+            }
+
+            handleCellClick(boardIndex, cellIndex) {
+                if (this.gameOver) return;
+                
+                if (!this.isValidMove(boardIndex, cellIndex)) return;
+                
+                // Start timer on first move
+                if (!this.timerRunning && this.moves === 0) {
+                    this.startTimer();
+                }
+                
+                this.makeMove(boardIndex, cellIndex);
+                
+                // Handle AI move
+                if (this.aiMode && this.currentPlayer === 'O' && !this.gameOver) {
+                    setTimeout(() => {
+                        if (!this.gameOver) {
+                            this.makeAIMove();
+                        }
+                    }, AI_MOVE_DELAY);
+                }
+            }
+
+            isValidMove(boardIndex, cellIndex) {
+                if (this.isClassicMode()) {
+                    return this.classicBoard[cellIndex] === '';
+                } else {
+                    // Super mode
+                    if (this.superBoardStatus[boardIndex] !== '') return false;
+                    if (this.superBoard[boardIndex][cellIndex] !== '') return false;
+                    if (this.activeSubBoard !== null && this.activeSubBoard !== boardIndex) return false;
+                    return true;
+                }
+            }
+
+            makeMove(boardIndex, cellIndex) {
+                // Check if player needs to remove a mark first (limited mode)
+                if (this.isLimitedMode() && this.getPlayerMarkCount(this.currentPlayer) >= MAX_MARKS_LIMITED) {
+                    this.removeOldestMark(this.currentPlayer, () => {
+                        // Place new mark after removal animation completes
+                        this.completeMoveAfterRemoval(boardIndex, cellIndex);
+                    });
+                } else {
+                    // Normal move without removal
+                    this.completeMoveAfterRemoval(boardIndex, cellIndex);
+                }
+            }
+
+            completeMoveAfterRemoval(boardIndex, cellIndex) {
+                this.placeMark(boardIndex, cellIndex);
+                this.recordMove(boardIndex, cellIndex);
+                this.checkGameState();
+                
+                if (!this.gameOver) {
+                    this.switchPlayer();
+                }
+                
+                this.updateDisplay();
+            }
+
+            placeMark(boardIndex, cellIndex) {
+                if (this.isClassicMode()) {
+                    this.classicBoard[cellIndex] = this.currentPlayer;
+                    const cell = this.classicBoardElement.children[cellIndex];
+                    this.updateCellDisplay(cell, this.currentPlayer);
+                } else {
+                    this.superBoard[boardIndex][cellIndex] = this.currentPlayer;
+                    const subBoard = this.superBoardElement.children[boardIndex];
+                    const cell = subBoard.children[cellIndex];
+                    this.updateCellDisplay(cell, this.currentPlayer);
+                    
+                    // Check if sub-board is won
+                    const subBoardResult = this.checkWinner(this.superBoard[boardIndex]);
+                    if (subBoardResult) {
+                        this.superBoardStatus[boardIndex] = subBoardResult;
+                        this.updateSubBoardDisplay(boardIndex, subBoardResult);
+                    } else if (!this.superBoard[boardIndex].includes('')) {
+                        this.superBoardStatus[boardIndex] = 'draw';
+                        this.updateSubBoardDisplay(boardIndex, 'draw');
+                    }
+                    
+                    // Set next active sub-board
+                    this.activeSubBoard = this.superBoardStatus[cellIndex] === '' ? cellIndex : null;
+                    this.updateActiveSubBoard();
+                }
+                
+                // Track marks for limited mode
+                if (this.isLimitedMode()) {
+                    this.playerMarks[this.currentPlayer].push({ boardIndex, cellIndex });
+                    this.updateMarksDisplay();
+                }
+                
+                this.moves++;
+                this.movesDisplay.textContent = `Moves: ${this.moves}`;
+                this.resetStatsButton.disabled = false;
+            }
+
+            updateCellDisplay(cell, player) {
+                cell.textContent = player;
+                cell.classList.add(player.toLowerCase(), 'filled', 'placing');
+                cell.style.pointerEvents = 'none';
+                
+                // Remove animation class after animation
+                setTimeout(() => {
+                    cell.classList.remove('placing');
+                }, 300);
+            }
+
+            updateSubBoardDisplay(boardIndex, result) {
+                const subBoard = this.superBoardElement.children[boardIndex];
+                const overlay = subBoard.querySelector('.sub-board-overlay');
+                
+                subBoard.classList.remove('active');
+                subBoard.classList.add(`won-${result.toLowerCase()}`);
+                
+                if (result === 'draw') {
+                    overlay.textContent = '⚊';
+                } else {
+                    overlay.textContent = result;
+                }
+                
+                // Disable all cells in this sub-board
+                Array.from(subBoard.children).forEach(cell => {
+                    if (cell.classList.contains('cell')) {
+                        cell.style.pointerEvents = 'none';
+                    }
+                });
+            }
+
+            updateActiveSubBoard() {
+                if (!this.isSuperMode()) return;
+                
+                // Remove active class from all sub-boards
+                Array.from(this.superBoardElement.children).forEach((subBoard, index) => {
+                    subBoard.classList.remove('active');
+                    
+                    // Enable/disable cells based on active sub-board
+                    if (this.activeSubBoard === null || this.activeSubBoard === index) {
+                        if (this.superBoardStatus[index] === '') {
+                            Array.from(subBoard.children).forEach(cell => {
+                                if (cell.classList.contains('cell') && !cell.classList.contains('filled')) {
+                                    cell.style.pointerEvents = 'auto';
+                                }
+                            });
+                        }
+                    } else {
+                        Array.from(subBoard.children).forEach(cell => {
+                            if (cell.classList.contains('cell')) {
+                                cell.style.pointerEvents = 'none';
+                            }
+                        });
+                    }
+                });
+                
+                // Add active class to current sub-board
+                if (this.activeSubBoard !== null) {
+                    this.superBoardElement.children[this.activeSubBoard].classList.add('active');
+                } else {
+                    // When activeSubBoard is null, all available boards should be highlighted
+                    Array.from(this.superBoardElement.children).forEach((subBoard, index) => {
+                        if (this.superBoardStatus[index] === '') {
+                            subBoard.classList.add('active');
+                        }
+                    });
+                }
+            }
+
+            removeOldestMark(player, callback) {
+                const marks = this.playerMarks[player];
+                if (marks.length === 0) {
+                    if (callback) callback();
+                    return;
+                }
+                
+                // Remove the oldest mark (first in array)
+                const oldestMark = marks[0];
+                this.removeMark(oldestMark.boardIndex, oldestMark.cellIndex, 0, player, callback);
+            }
+
+            removeMark(boardIndex, cellIndex, markIndex, player, callback) {
+                // Get the cell to animate
+                let cell;
+                if (this.isClassicMode()) {
+                    cell = this.classicBoardElement.children[cellIndex];
+                } else {
+                    const subBoard = this.superBoardElement.children[boardIndex];
+                    cell = subBoard.children[cellIndex];
+                }
+                
+                // Add fade-out animation
+                cell.style.transition = 'all 0.3s ease-out';
+                cell.style.transform = 'scale(0.5)';
+                cell.style.opacity = '0.3';
+                
+                // After animation, remove the mark
+                setTimeout(() => {
+                    // Remove from board
+                    if (this.isClassicMode()) {
+                        this.classicBoard[cellIndex] = '';
+                        this.clearCellDisplay(cell);
+                    } else {
+                        this.superBoard[boardIndex][cellIndex] = '';
+                        this.clearCellDisplay(cell);
+                        
+                        // May need to update sub-board status
+                        this.recalculateSubBoardStatus(boardIndex);
+                    }
+                    
+                    // Remove from player marks
+                    this.playerMarks[player].splice(markIndex, 1);
+                    this.updateMarksDisplay();
+                    
+                    // Record removal in history
+                    this.recordRemoval(boardIndex, cellIndex, player);
+                    
+                    // Reset cell styling
+                    cell.style.transition = '';
+                    cell.style.transform = '';
+                    cell.style.opacity = '';
+                    
+                    // Call the callback if provided
+                    if (callback) callback();
+                }, 300);
+            }
+
+            clearCellDisplay(cell) {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o', 'filled');
+                cell.style.pointerEvents = 'auto';
+            }
+
+
+
+            recalculateSubBoardStatus(boardIndex) {
+                const board = this.superBoard[boardIndex];
+                const result = this.checkWinner(board);
+                
+                if (result) {
+                    this.superBoardStatus[boardIndex] = result;
+                } else if (!board.includes('')) {
+                    this.superBoardStatus[boardIndex] = 'draw';
+                } else {
+                    this.superBoardStatus[boardIndex] = '';
+                    
+                    // Remove won/draw styling
+                    const subBoard = this.superBoardElement.children[boardIndex];
+                    subBoard.classList.remove('won-x', 'won-o', 'draw');
+                    subBoard.querySelector('.sub-board-overlay').textContent = '';
+                }
+            }
+
+            checkGameState() {
+                let winner = null;
+                
+                if (this.isClassicMode()) {
+                    winner = this.checkWinner(this.classicBoard);
+                } else {
+                    winner = this.checkWinner(this.superBoardStatus);
+                }
+                
+                if (winner) {
+                    this.handleWin(winner);
+                } else if (this.isGameDraw()) {
+                    this.handleDraw();
+                }
+            }
+
+            checkWinner(board) {
+                const winPatterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                    [0, 4, 8], [2, 4, 6] // diagonals
+                ];
+                
+                for (const pattern of winPatterns) {
+                    const [a, b, c] = pattern;
+                    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                        return board[a];
+                    }
+                }
+                
+                return null;
+            }
+
+            isGameDraw() {
+                if (this.isClassicMode()) {
+                    return !this.classicBoard.includes('');
+                } else {
+                    return !this.superBoardStatus.includes('');
+                }
+            }
+
+            handleWin(winner) {
+                this.gameOver = true;
+                this.stopTimer();
+                
+                // Update score
+                if (winner === 'X') {
+                    this.playerXScore++;
+                } else {
+                    this.playerOScore++;
+                }
+                
+                this.updateScoreDisplay();
+                this.recordWin(winner);
+                this.createWinEffect();
+                
+                setTimeout(() => {
+                    alert(`${this.playerNames[winner]} wins!`);
+                    this.newGame();
+                }, 100);
+            }
+
+            handleDraw() {
+                this.gameOver = true;
+                this.stopTimer();
+                this.recordDraw();
+                
+                setTimeout(() => {
+                    alert("It's a draw!");
+                    this.newGame();
+                }, 100);
+            }
+
+            createWinEffect() {
+                // Create confetti effect
+                this.winEffect.innerHTML = '';
+                const colors = ['var(--x-color)', 'var(--o-color)', 'var(--button-color)', 'var(--accent-color)'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    this.winEffect.appendChild(confetti);
+                }
+                
+                setTimeout(() => {
+                    this.winEffect.innerHTML = '';
+                }, 5000);
+            }
+
+            makeAIMove() {
+                let move;
+                
+                if (this.isClassicMode()) {
+                    move = this.findBestClassicMove();
+                    if (move !== null) {
+                        this.makeMove(-1, move);
+                    }
+                } else {
+                    move = this.findBestSuperMove();
+                    if (move !== null) {
+                        this.makeMove(move.boardIndex, move.cellIndex);
+                    }
+                }
+            }
+
+            findBestClassicMove() {
+                let bestScore = -Infinity;
+                let bestMove = null;
+                
+                for (let i = 0; i < 9; i++) {
+                    if (this.classicBoard[i] === '') {
+                        this.classicBoard[i] = 'O';
+                        const score = this.minimax(this.classicBoard, 0, false, -Infinity, Infinity);
+                        this.classicBoard[i] = '';
+                        
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestMove = i;
+                        }
+                    }
+                }
+                
+                return bestMove;
+            }
+
+            findBestSuperMove() {
+                let bestScore = -Infinity;
+                let bestMoves = [];
+                
+                // Check for immediate wins first
+                for (let boardIndex = 0; boardIndex < 9; boardIndex++) {
+                    if (this.superBoardStatus[boardIndex] !== '') continue;
+                    if (this.activeSubBoard !== null && this.activeSubBoard !== boardIndex) continue;
+                    
+                    for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
+                        if (this.superBoard[boardIndex][cellIndex] === '') {
+                            // Simulate move
+                            this.superBoard[boardIndex][cellIndex] = 'O';
+                            
+                            // Check if this wins the sub-board
+                            const subBoardWinner = this.checkWinner(this.superBoard[boardIndex]);
+                            if (subBoardWinner === 'O') {
+                                // Check if this wins the main game
+                                const tempStatus = [...this.superBoardStatus];
+                                tempStatus[boardIndex] = 'O';
+                                const mainWinner = this.checkWinner(tempStatus);
+                                
+                                this.superBoard[boardIndex][cellIndex] = '';
+                                
+                                if (mainWinner === 'O') {
+                                    return { boardIndex, cellIndex }; // Winning move!
+                                }
+                            }
+                            
+                            this.superBoard[boardIndex][cellIndex] = '';
+                        }
+                    }
+                }
+                
+                // Check for blocking opponent wins
+                for (let boardIndex = 0; boardIndex < 9; boardIndex++) {
+                    if (this.superBoardStatus[boardIndex] !== '') continue;
+                    if (this.activeSubBoard !== null && this.activeSubBoard !== boardIndex) continue;
+                    
+                    for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
+                        if (this.superBoard[boardIndex][cellIndex] === '') {
+                            // Simulate opponent move
+                            this.superBoard[boardIndex][cellIndex] = 'X';
+                            
+                            const subBoardWinner = this.checkWinner(this.superBoard[boardIndex]);
+                            if (subBoardWinner === 'X') {
+                                const tempStatus = [...this.superBoardStatus];
+                                tempStatus[boardIndex] = 'X';
+                                const mainWinner = this.checkWinner(tempStatus);
+                                
+                                this.superBoard[boardIndex][cellIndex] = '';
+                                
+                                if (mainWinner === 'X') {
+                                    return { boardIndex, cellIndex }; // Block winning move!
+                                }
+                            }
+                            
+                            this.superBoard[boardIndex][cellIndex] = '';
+                        }
+                    }
+                }
+                
+                // Evaluate all possible moves
+                for (let boardIndex = 0; boardIndex < 9; boardIndex++) {
+                    if (this.superBoardStatus[boardIndex] !== '') continue;
+                    if (this.activeSubBoard !== null && this.activeSubBoard !== boardIndex) continue;
+                    
+                    for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
+                        if (this.superBoard[boardIndex][cellIndex] === '') {
+                            // Simulate move
+                            this.superBoard[boardIndex][cellIndex] = 'O';
+                            
+                            let score = this.evaluateSuperPosition();
+                            
+                            // Add positional bonuses
+                            // Prefer center positions
+                            if (cellIndex === 4) score += 5;
+                            // Prefer corner positions
+                            if ([0, 2, 6, 8].includes(cellIndex)) score += 3;
+                            // Prefer strategic board positions
+                            if ([4, 0, 2, 6, 8].includes(boardIndex)) score += 2;
+                            
+                            // Add some randomness to prevent repetitive play
+                            score += Math.random() * 5;
+                            
+                            this.superBoard[boardIndex][cellIndex] = '';
+                            
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestMoves = [{ boardIndex, cellIndex }];
+                            } else if (Math.abs(score - bestScore) < 0.1) {
+                                bestMoves.push({ boardIndex, cellIndex });
+                            }
+                        }
+                    }
+                }
+                
+                // Return random move from best moves to add variety
+                return bestMoves.length > 0 ? bestMoves[Math.floor(Math.random() * bestMoves.length)] : null;
+            }
+
+
+
+            evaluateSuperPosition() {
+                let score = 0;
+                
+                // Check for immediate main board win/loss
+                const mainBoardWinner = this.checkWinner(this.superBoardStatus);
+                if (mainBoardWinner === 'O') return 1000;
+                if (mainBoardWinner === 'X') return -1000;
+                
+                // Evaluate main board control
+                for (let i = 0; i < 9; i++) {
+                    if (this.superBoardStatus[i] === 'O') score += 100;
+                    else if (this.superBoardStatus[i] === 'X') score -= 100;
+                }
+                
+                // Evaluate potential main board wins
+                const winPatterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                    [0, 4, 8], [2, 4, 6] // diagonals
+                ];
+                
+                winPatterns.forEach(pattern => {
+                    let oCount = 0, xCount = 0, emptyCount = 0;
+                    pattern.forEach(pos => {
+                        if (this.superBoardStatus[pos] === 'O') oCount++;
+                        else if (this.superBoardStatus[pos] === 'X') xCount++;
+                        else emptyCount++;
+                    });
+                    
+                    if (oCount === 2 && emptyCount === 1) score += 50; // Near win
+                    else if (xCount === 2 && emptyCount === 1) score -= 50; // Block opponent
+                    else if (oCount === 1 && emptyCount === 2) score += 10; // Potential
+                    else if (xCount === 1 && emptyCount === 2) score -= 10; // Block potential
+                });
+                
+                // Evaluate sub-board positions for strategic value
+                for (let boardIndex = 0; boardIndex < 9; boardIndex++) {
+                    if (this.superBoardStatus[boardIndex] === '') {
+                        const board = this.superBoard[boardIndex];
+                        
+                        // Count marks in each sub-board
+                        let oMarks = 0, xMarks = 0;
+                        board.forEach(cell => {
+                            if (cell === 'O') oMarks++;
+                            else if (cell === 'X') xMarks++;
+                        });
+                        
+                        // Prefer boards with more potential
+                        if (oMarks > xMarks) score += 5;
+                        else if (xMarks > oMarks) score -= 5;
+                        
+                        // Check for near wins in sub-boards
+                        winPatterns.forEach(pattern => {
+                            let subOCount = 0, subXCount = 0, subEmptyCount = 0;
+                            pattern.forEach(pos => {
+                                if (board[pos] === 'O') subOCount++;
+                                else if (board[pos] === 'X') subXCount++;
+                                else subEmptyCount++;
+                            });
+                            
+                            if (subOCount === 2 && subEmptyCount === 1) score += 25;
+                            else if (subXCount === 2 && subEmptyCount === 1) score -= 25;
+                        });
+                    }
+                }
+                
+                return score;
+            }
+
+            minimax(board, depth, isMaximizing, alpha, beta) {
+                const result = this.checkWinner(board);
+                if (result === 'O') return 10 - depth;
+                if (result === 'X') return depth - 10;
+                if (!board.includes('')) return 0;
+                
+                if (isMaximizing) {
+                    let maxEval = -Infinity;
+                    for (let i = 0; i < 9; i++) {
+                        if (board[i] === '') {
+                            board[i] = 'O';
+                            const evaluation = this.minimax(board, depth + 1, false, alpha, beta);
+                            board[i] = '';
+                            maxEval = Math.max(maxEval, evaluation);
+                            alpha = Math.max(alpha, evaluation);
+                            if (beta <= alpha) break;
+                        }
+                    }
+                    return maxEval;
+                } else {
+                    let minEval = Infinity;
+                    for (let i = 0; i < 9; i++) {
+                        if (board[i] === '') {
+                            board[i] = 'X';
+                            const evaluation = this.minimax(board, depth + 1, true, alpha, beta);
+                            board[i] = '';
+                            minEval = Math.min(minEval, evaluation);
+                            beta = Math.min(beta, evaluation);
+                            if (beta <= alpha) break;
+                        }
+                    }
+                    return minEval;
+                }
+            }
+
+            getPlayerMarkCount(player) {
+                return this.playerMarks[player].length;
+            }
+
+            switchPlayer() {
+                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+                this.updateCurrentPlayerDisplay();
+            }
+
+            recordMove(boardIndex, cellIndex) {
+                const moveData = {
+                    player: this.currentPlayer,
+                    boardIndex,
+                    cellIndex,
+                    time: this.getFormattedTime(),
+                    type: 'place'
+                };
+                
+                this.moveHistory.push(moveData);
+                this.undoMoveButton.disabled = false;
+                
+                const moveText = this.formatMoveText(moveData);
+                this.historyText.textContent += moveText + '\n';
+                this.historyText.scrollTop = this.historyText.scrollHeight;
+            }
+
+            recordRemoval(boardIndex, cellIndex, player) {
+                const moveData = {
+                    player: player,
+                    boardIndex,
+                    cellIndex,
+                    time: this.getFormattedTime(),
+                    type: 'remove'
+                };
+                
+                this.moveHistory.push(moveData);
+                
+                const moveText = this.formatMoveText(moveData);
+                this.historyText.textContent += moveText + '\n';
+                this.historyText.scrollTop = this.historyText.scrollHeight;
+            }
+
+            recordWin(winner) {
+                const winText = `\n🎉 ${this.playerNames[winner]} WINS! 🎉\nMoves: ${this.moves} | Time: ${this.getFormattedTime()}\n`;
+                this.historyText.textContent += winText;
+                this.historyText.scrollTop = this.historyText.scrollHeight;
+            }
+
+            recordDraw() {
+                const drawText = `\n🤝 DRAW GAME 🤝\nMoves: ${this.moves} | Time: ${this.getFormattedTime()}\n`;
+                this.historyText.textContent += drawText;
+                this.historyText.scrollTop = this.historyText.scrollHeight;
+            }
+
+            formatMoveText(moveData) {
+                const playerName = this.playerNames[moveData.player];
+                const action = moveData.type === 'place' ? 'placed' : 'removed';
+                
+                if (this.isClassicMode()) {
+                    const row = Math.floor(moveData.cellIndex / 3) + 1;
+                    const col = (moveData.cellIndex % 3) + 1;
+                    return `[${moveData.time}] ${playerName} ${action} at (${row},${col})`;
+                } else {
+                    const boardRow = Math.floor(moveData.boardIndex / 3) + 1;
+                    const boardCol = (moveData.boardIndex % 3) + 1;
+                    const cellRow = Math.floor(moveData.cellIndex / 3) + 1;
+                    const cellCol = (moveData.cellIndex % 3) + 1;
+                    return `[${moveData.time}] ${playerName} ${action} at B(${boardRow},${boardCol}) C(${cellRow},${cellCol})`;
+                }
+            }
+
+            undoMove() {
+                if (this.moveHistory.length === 0) return;
+                
+                const lastMove = this.moveHistory.pop();
+                
+                if (lastMove.type === 'place') {
+                    // Undo placement
+                    if (this.isClassicMode()) {
+                        this.classicBoard[lastMove.cellIndex] = '';
+                        const cell = this.classicBoardElement.children[lastMove.cellIndex];
+                        this.clearCellDisplay(cell);
+                    } else {
+                        this.superBoard[lastMove.boardIndex][lastMove.cellIndex] = '';
+                        const subBoard = this.superBoardElement.children[lastMove.boardIndex];
+                        const cell = subBoard.children[lastMove.cellIndex];
+                        this.clearCellDisplay(cell);
+                        
+                        this.recalculateSubBoardStatus(lastMove.boardIndex);
+                    }
+                    
+                    // Remove from player marks if in limited mode
+                    if (this.isLimitedMode()) {
+                        const markIndex = this.playerMarks[lastMove.player].findIndex(mark =>
+                            mark.boardIndex === lastMove.boardIndex && mark.cellIndex === lastMove.cellIndex
+                        );
+                        if (markIndex !== -1) {
+                            this.playerMarks[lastMove.player].splice(markIndex, 1);
+                        }
+                    }
+                    
+                    this.currentPlayer = lastMove.player;
+                    this.moves--;
+                } else {
+                    // Undo removal - re-place the mark
+                    if (this.isClassicMode()) {
+                        this.classicBoard[lastMove.cellIndex] = lastMove.player;
+                        const cell = this.classicBoardElement.children[lastMove.cellIndex];
+                        this.updateCellDisplay(cell, lastMove.player);
+                    } else {
+                        this.superBoard[lastMove.boardIndex][lastMove.cellIndex] = lastMove.player;
+                        const subBoard = this.superBoardElement.children[lastMove.boardIndex];
+                        const cell = subBoard.children[lastMove.cellIndex];
+                        this.updateCellDisplay(cell, lastMove.player);
+                        
+                        this.recalculateSubBoardStatus(lastMove.boardIndex);
+                    }
+                    
+                    // Add back to player marks
+                    if (this.isLimitedMode()) {
+                        this.playerMarks[lastMove.player].push({
+                            boardIndex: lastMove.boardIndex,
+                            cellIndex: lastMove.cellIndex
+                        });
+                    }
+                }
+                
+                if (this.moveHistory.length === 0) {
+                    this.undoMoveButton.disabled = true;
+                    this.resetStatsButton.disabled = true;
+                    this.stopTimer();
+                }
+                
+                this.updateDisplay();
+                this.historyText.textContent += `Undo: ${this.formatMoveText(lastMove)}\n`;
+                this.historyText.scrollTop = this.historyText.scrollHeight;
+            }
+
+            newGame() {
+                // Reset game state
+                this.currentPlayer = 'X';
+                this.gameOver = false;
+                this.moves = 0;
+                this.moveHistory = [];
+                
+                // Reset boards
+                this.classicBoard = Array(9).fill('');
+                this.superBoard = Array(9).fill(null).map(() => Array(9).fill(''));
+                this.superBoardStatus = Array(9).fill('');
+                this.activeSubBoard = null;
+                
+                // Reset limited marks
+                this.playerMarks = { X: [], O: [] };
+                
+                // Reset timer
+                this.stopTimer();
+                this.timeElapsed = 0;
+                
+                // Reset UI
+                this.resetBoardDisplay();
+                this.updateDisplay();
+                
+                // Clear history with new game marker
+                this.historyText.textContent += `\n=== NEW GAME: ${this.getGameModeText()} ===\n`;
+                this.historyText.scrollTop = this.historyText.scrollHeight;
+                
+                // Disable buttons
+                this.undoMoveButton.disabled = true;
+                this.resetStatsButton.disabled = true;
+            }
+
+            resetBoardDisplay() {
+                // Reset classic board
+                Array.from(this.classicBoardElement.children).forEach(cell => {
+                    this.clearCellDisplay(cell);
+                });
+                
+                // Reset super board
+                Array.from(this.superBoardElement.children).forEach((subBoard, boardIndex) => {
+                    subBoard.classList.remove('active', 'won-x', 'won-o', 'draw');
+                    subBoard.querySelector('.sub-board-overlay').textContent = '';
+                    
+                    Array.from(subBoard.children).forEach(cell => {
+                        if (cell.classList.contains('cell')) {
+                            this.clearCellDisplay(cell);
+                        }
+                    });
+                });
+                
+                // Ensure super board cells are enabled after reset if in super mode
+                if (this.isSuperMode()) {
+                    Array.from(this.superBoardElement.children).forEach((subBoard, boardIndex) => {
+                        Array.from(subBoard.children).forEach(cell => {
+                            if (cell.classList.contains('cell')) {
+                                cell.style.pointerEvents = 'auto';
+                            }
+                        });
+                    });
+                }
+            }
+
+            resetStats() {
+                this.playerXScore = 0;
+                this.playerOScore = 0;
+                this.updateScoreDisplay();
+                this.historyText.textContent = '=== STATS RESET ===\n';
+                this.newGame();
+            }
+
+            startTimer() {
+                this.timerRunning = true;
+                this.startTime = Date.now() - this.timeElapsed;
+                this.updateTimer();
+            }
+
+            stopTimer() {
+                this.timerRunning = false;
+                if (this.timerInterval) {
+                    cancelAnimationFrame(this.timerInterval);
+                }
+            }
+
+            updateTimer() {
+                if (!this.timerRunning) return;
+                
+                this.timeElapsed = Date.now() - this.startTime;
+                this.timerDisplay.textContent = `Time: ${this.getFormattedTime()}`;
+                
+                this.timerInterval = requestAnimationFrame(() => this.updateTimer());
+            }
+
+            getFormattedTime() {
+                const totalSeconds = Math.floor(this.timeElapsed / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                const milliseconds = Math.floor((this.timeElapsed % 1000) / 10);
+                
+                return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+            }
+
+            updateDisplay() {
+                this.updateCurrentPlayerDisplay();
+                this.updateScoreDisplay();
+                this.updateGameModeDisplay();
+                this.updateMarksDisplay();
+                this.updateActiveSubBoard();
+                this.movesDisplay.textContent = `Moves: ${this.moves}`;
+            }
+
+            updateCurrentPlayerDisplay() {
+                this.currentPlayerDisplay.textContent = `Current Player: ${this.playerNames[this.currentPlayer]}`;
+                this.currentPlayerDisplay.style.background = '';
+                this.currentPlayerDisplay.style.color = '';
+                this.currentPlayerDisplay.classList.remove('x-turn', 'o-turn');
+                this.currentPlayerDisplay.classList.add(this.currentPlayer.toLowerCase() + '-turn');
+            }
+
+            updateScoreDisplay() {
+                const xName = this.playerNames.X || 'X';
+                const oName = this.playerNames.O || 'O';
+                
+                this.xScoreDisplay.parentElement.innerHTML = `${xName}: <span id="x-score">${this.playerXScore}</span>`;
+                this.oScoreDisplay.parentElement.innerHTML = `${oName}: <span id="o-score">${this.playerOScore}</span>`;
+                
+                // Re-cache elements
+                this.xScoreDisplay = document.getElementById('x-score');
+                this.oScoreDisplay = document.getElementById('o-score');
+            }
+
+            updateGameModeDisplay() {
+                this.gameModeDisplay.textContent = this.getGameModeText();
+            }
+
+            getGameModeText() {
+                const modes = [];
+                
+                if (this.gameMode === GAME_MODES.CLASSIC) modes.push('Classic');
+                else if (this.gameMode === GAME_MODES.SUPER) modes.push('Super');
+                else if (this.gameMode === GAME_MODES.LIMITED) modes.push('Limited Marks');
+                else if (this.gameMode === GAME_MODES.SUPER_LIMITED) modes.push('Super + Limited');
+                
+                if (this.aiMode) modes.push('vs AI');
+                
+                return modes.join(' | ');
+            }
+
+            updateMarksDisplay() {
+                if (!this.isLimitedMode()) return;
+                
+                // Update X marks
+                const xMarks = this.getPlayerMarkCount('X');
+                Array.from(this.xMarksProgress.children).forEach((dot, index) => {
+                    dot.classList.toggle('filled', index < xMarks);
+                });
+                
+                // Update O marks
+                const oMarks = this.getPlayerMarkCount('O');
+                Array.from(this.oMarksProgress.children).forEach((dot, index) => {
+                    dot.classList.toggle('filled', index < oMarks);
+                });
+            }
+        }
+
+        // Initialize the game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new SuperTicTacToe();
+        });
+    </script>
+</body>
+</html> 
